@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(**)",
+      "WebFetch(*)",
+      "WebSearch",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --turbopack --yes)",
+      "Bash(mv .env /tmp/visus-forms-env-backup)",
+      "Bash(mv docs:*)",
+      "Bash(mv .claude /tmp/visus-forms-claude-backup)"
+    ]
+  }
+}

@@ -75,11 +75,17 @@ export function ResponsesIndividual({ responses, questions }: ResponsesIndividua
               </div>
               <div>
                 <p className="text-sm font-bold text-on-surface">
-                  {response.user?.name || "Anonimo"}
+                  {response.respondentName || response.user?.name || "Anônimo"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {response.user?.email || "Sem email"}
+                  {response.respondentEmail || response.user?.email || "Sem e-mail"}
                 </p>
+                {response.respondentCpf && (
+                  <p className="text-xs text-muted-foreground">CPF: {response.respondentCpf}</p>
+                )}
+                {response.respondentPhone && (
+                  <p className="text-xs text-muted-foreground">Tel: {response.respondentPhone}</p>
+                )}
               </div>
             </div>
 
@@ -124,9 +130,20 @@ export function ResponsesIndividual({ responses, questions }: ResponsesIndividua
                 </div>
                 <p className="text-sm font-semibold text-on-surface">{question.title}</p>
                 <div className="rounded-xl bg-surface-container-low p-3">
-                  <p className="text-sm text-on-surface whitespace-pre-wrap">
-                    {value || <span className="text-muted-foreground italic">Sem resposta</span>}
-                  </p>
+                  {answer?.fileUpload ? (
+                    <a
+                      href={answer.fileUpload.storageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary underline hover:text-primary/80 transition-colors"
+                    >
+                      {answer.fileUpload.originalName}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-on-surface whitespace-pre-wrap">
+                      {value || <span className="text-muted-foreground italic">Sem resposta</span>}
+                    </p>
+                  )}
                 </div>
               </div>
             );

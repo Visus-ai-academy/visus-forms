@@ -29,8 +29,8 @@ export const createQuestionSchema = z.object({
     "STATEMENT",
   ]),
   title: z.string().min(1, "Titulo e obrigatorio"),
-  description: z.string().optional(),
-  placeholder: z.string().optional(),
+  description: z.string().nullable().optional(),
+  placeholder: z.string().nullable().optional(),
   required: z.boolean().default(false),
   config: z.record(z.string(), z.unknown()).default({}),
   options: z
@@ -62,6 +62,8 @@ export const formSettingsSchema = z.object({
   redirectUrl: z.string().url().nullable().optional(),
   notifyOnSubmission: z.boolean().optional(),
   notifyEmails: z.array(z.string().email()).optional(),
+  identificationMode: z.enum(["anonymous", "identified"]).optional(),
+  identificationFields: z.array(z.enum(["name", "email", "cpf", "phone"])).optional(),
 });
 
 export const formThemeSchema = z.object({

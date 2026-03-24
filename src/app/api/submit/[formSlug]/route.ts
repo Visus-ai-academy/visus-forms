@@ -100,10 +100,16 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { answers, startedAt, metadata } = body as {
+    const { answers, startedAt, metadata, respondent } = body as {
       answers: Record<string, unknown>;
       startedAt?: string;
       metadata?: Record<string, unknown>;
+      respondent?: {
+        name?: string;
+        email?: string;
+        cpf?: string;
+        phone?: string;
+      };
     };
 
     // Validacao server-side
@@ -127,27 +133,54 @@ export async function POST(
       : null;
 
     // Criar resposta + answers em transacao
-    const response = await prisma.formResponse.create({
-      data: {
-        formId: form.id,
-        status: "COMPLETED",
-        completedAt: now,
-        duration,
-        metadata: (metadata ?? undefined) as Prisma.InputJsonValue | undefined,
-        answers: {
-          create: form.questions
-            .filter((q) => validated.data[q.id] !== undefined && validated.data[q.id] !== null && validated.data[q.id] !== "")
-            .map((q) => {
-              const val = validated.data[q.id];
-              return {
-                questionId: q.id,
-                ...mapValueToAnswer(q.type, val),
-              } satisfies Prisma.AnswerUncheckedCreateWithoutFormResponseInput;
-            }),
-        },
+    const responseData: Record<string, unknown> = {
+      formId: form.id,
+      status: "COMPLETED",
+      completedAt: now,
+      duration,
+      metadata: (metadata ?? undefined) as Prisma.InputJsonValue | undefined,
+      respondentName: respondent?.name || null,
+      respondentEmail: respondent?.email || null,
+      respondentCpf: respondent?.cpf || null,
+      respondentPhone: respondent?.phone || null,
+      answers: {
+        create: form.questions
+          .filter((q) => validated.data[q.id] !== undefined && validated.data[q.id] !== null && validated.data[q.id] !== "")
+          .map((q) => {
+            const val = validated.data[q.id];
+            return {
+              questionId: q.id,
+              ...mapValueToAnswer(q.type, val),
+            } satisfies Prisma.AnswerUncheckedCreateWithoutFormResponseInput;
+          }),
       },
+    };
+
+    const response = await (prisma.formResponse.create as Function)({
+      data: responseData,
       include: { answers: true },
     });
+
+    // Criar registros FileUpload para perguntas do tipo FILE_UPLOAD
+    const fileUploadQuestions = form.questions.filter((q) => q.type === "FILE_UPLOAD");
+    for (const q of fileUploadQuestions) {
+      const files = validated.data[q.id] as { url: string; storagePath: string; originalName: string; mimeType: string; sizeBytes: number }[] | undefined;
+      if (!files || !Array.isArray(files) || files.length === 0) continue;
+
+      const answer = response.answers.find((a: { questionId: string }) => a.questionId === q.id);
+      if (!answer) continue;
+
+      await (prisma.fileUpload as any).create({
+        data: {
+          answerId: answer.id,
+          originalName: files[0].originalName,
+          storagePath: files[0].storagePath,
+          storageUrl: files[0].url,
+          mimeType: files[0].mimeType,
+          sizeBytes: files[0].sizeBytes,
+        },
+      });
+    }
 
     return NextResponse.json({ data: { responseId: response.id } }, { status: 201 });
   } catch {

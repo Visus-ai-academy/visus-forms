@@ -23,7 +23,6 @@ export function QuestionOptionsEditor({
       i === index ? { ...opt, label, value: label.toLowerCase().replace(/\s+/g, "_") } : opt
     );
     updateQuestion(question.id, { options: newOptions });
-    saveOptions(newOptions);
   }
 
   function handleAddOption() {
@@ -33,35 +32,19 @@ export function QuestionOptionsEditor({
       {
         id: `temp-${Date.now()}`,
         questionId: question.id,
-        label: `Opcao ${newIndex}`,
+        label: `Opção ${newIndex}`,
         value: `opcao_${newIndex}`,
         order: question.options.length,
         imageUrl: null,
       },
     ];
     updateQuestion(question.id, { options: newOptions });
-    saveOptions(newOptions);
   }
 
   function handleRemoveOption(index: number) {
     if (question.options.length <= 1) return;
     const newOptions = question.options.filter((_, i) => i !== index);
     updateQuestion(question.id, { options: newOptions });
-    saveOptions(newOptions);
-  }
-
-  async function saveOptions(options: typeof question.options) {
-    await fetch(`/api/forms/${formId}/questions/${question.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        options: options.map((o) => ({
-          label: o.label,
-          value: o.value,
-          imageUrl: o.imageUrl,
-        })),
-      }),
-    });
   }
 
   return (

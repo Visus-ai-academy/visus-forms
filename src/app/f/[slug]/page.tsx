@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ClassicRenderer } from "@/components/form-renderer/classic-renderer";
+import {
+  IdentificationScreen,
+  type RespondentData,
+} from "@/components/form-renderer/identification-screen";
 import { TypeformRenderer } from "@/components/form-renderer/typeform-renderer";
 import type { FormDefinition } from "@/types/form";
 
@@ -16,6 +20,8 @@ export default function PublicFormPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [startedAt] = useState(new Date().toISOString());
+  const [respondent, setRespondent] = useState<RespondentData | null>(null);
+  const [identificationDone, setIdentificationDone] = useState(false);
 
   useEffect(() => {
     async function loadForm() {
@@ -28,8 +34,13 @@ export default function PublicFormPage() {
         }
         const { data } = await res.json();
         setForm(data);
+
+        // Se for anônimo, pular identificação
+        if (!data.settings?.identificationMode || data.settings.identificationMode === "anonymous") {
+          setIdentificationDone(true);
+        }
       } catch {
-        setError("Erro ao carregar formulario");
+        setError("Erro ao carregar formulário");
       } finally {
         setLoading(false);
       }
@@ -37,11 +48,20 @@ export default function PublicFormPage() {
     loadForm();
   }, [params.slug]);
 
+  function handleIdentification(data: RespondentData) {
+    setRespondent(data);
+    setIdentificationDone(true);
+  }
+
   async function handleSubmit(answers: Record<string, unknown>) {
     const res = await fetch(`/api/submit/${params.slug}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, startedAt }),
+      body: JSON.stringify({
+        answers,
+        startedAt,
+        respondent: respondent ?? undefined,
+      }),
     });
 
     if (!res.ok) {
@@ -55,7 +75,6 @@ export default function PublicFormPage() {
       return;
     }
 
-    // Redirecionar ou ir para success
     if (form?.settings?.redirectUrl) {
       window.location.href = form.settings.redirectUrl;
     } else {
@@ -76,11 +95,18 @@ export default function PublicFormPage() {
       <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center space-y-3">
           <h1 className="text-2xl font-bold font-heading text-on-surface">
-            Formulario indisponivel
+            Formulário indisponível
           </h1>
           <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
+    );
+  }
+
+  // Mostrar tela de identificação se necessário
+  if (!identificationDone) {
+    return (
+      <IdentificationScreen form={form} onContinue={handleIdentification} />
     );
   }
 

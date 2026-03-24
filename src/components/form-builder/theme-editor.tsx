@@ -11,6 +11,7 @@ import {
   RotateCcw,
   Scissors,
   Smartphone,
+  UserCircle,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { HexColorPicker } from "react-colorful";
@@ -237,9 +238,10 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
                 <Switch checked={settings.showProgressBar ?? true} onCheckedChange={(val) => updateSettings("showProgressBar", val)} />
               </div>
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold text-muted-foreground">Multiplas respostas</Label>
+                <Label className="text-xs font-semibold text-muted-foreground">Múltiplas respostas</Label>
                 <Switch checked={settings.allowMultipleSubmissions ?? false} onCheckedChange={(val) => updateSettings("allowMultipleSubmissions", val)} />
               </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mensagem de confirmação</Label>
                 <Input value={settings.confirmationMessage ?? ""} onChange={(e) => updateSettings("confirmationMessage", e.target.value || null)} placeholder="Obrigado por responder!" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />

@@ -1,15 +1,14 @@
-import { randomUUID } from "crypto";
-import { writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
-import path from "path";
 
+import { prisma } from "@/lib/prisma";
+import { StorageError, uploadToStorage } from "@/lib/services/storage";
 import { getRequiredSession } from "@/lib/session";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_SIZE_MB = 5;
 
 export async function POST(request: Request) {
-  const { error } = await getRequiredSession();
+  const { session, error } = await getRequiredSession();
   if (error) return error;
 
   try {
@@ -20,25 +19,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Tipo de arquivo não permitido. Use JPG, PNG, GIF, WebP ou SVG." }, { status: 400 });
+    const result = await uploadToStorage(
+      file,
+      `design/${session.user.id}`,
+      ALLOWED_TYPES,
+      MAX_SIZE_MB
+    );
+
+    await (prisma.designUpload as any).create({
+      data: {
+        userId: session.user.id,
+        originalName: result.originalName,
+        storagePath: result.storagePath,
+        storageUrl: result.storageUrl,
+        mimeType: result.mimeType,
+        sizeBytes: result.sizeBytes,
+      },
+    });
+
+    return NextResponse.json(
+      { data: { url: result.storageUrl, filename: result.originalName } },
+      { status: 201 }
+    );
+  } catch (err) {
+    if (err instanceof StorageError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
-
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "Arquivo muito grande. Maximo 5MB." }, { status: 400 });
-    }
-
-    const ext = file.name.split(".").pop() || "png";
-    const filename = `${randomUUID()}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await writeFile(path.join(uploadDir, filename), buffer);
-
-    const url = `/uploads/${filename}`;
-
-    return NextResponse.json({ data: { url, filename } }, { status: 201 });
-  } catch {
     return NextResponse.json({ error: "Erro ao fazer upload" }, { status: 500 });
   }
 }

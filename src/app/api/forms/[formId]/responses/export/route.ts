@@ -12,9 +12,13 @@ function getAnswerDisplay(
     booleanValue: boolean | null;
     dateValue: Date | null;
     jsonValue: unknown;
+    fileUpload?: { originalName: string; storageUrl: string } | null;
   },
   optionsMap?: Map<string, string>
 ): string {
+  if (answer.fileUpload) {
+    return answer.fileUpload.storageUrl;
+  }
   if (answer.textValue !== null) {
     if (optionsMap?.has(answer.textValue)) return optionsMap.get(answer.textValue)!;
     return answer.textValue;
@@ -72,7 +76,7 @@ export async function GET(
   const responses = await prisma.formResponse.findMany({
     where: { formId, status: "COMPLETED" },
     include: {
-      answers: true,
+      answers: { include: { fileUpload: true } },
       user: { select: { name: true, email: true } },
     },
     orderBy: { startedAt: "desc" },
@@ -82,7 +86,9 @@ export async function GET(
   const headers = [
     "ID",
     "Respondente",
-    "Email",
+    "E-mail",
+    "CPF",
+    "Telefone",
     "Status",
     "Data de envio",
     "Duração (s)",
@@ -98,11 +104,14 @@ export async function GET(
   }
 
   const rows = responses.map((response) => {
+    const r = response as Record<string, unknown>;
     const answerMap = new Map(response.answers.map((a) => [a.questionId, a]));
     return [
       response.id,
-      response.user?.name || "Anonimo",
-      response.user?.email || "-",
+      (r.respondentName as string) || response.user?.name || "Anônimo",
+      (r.respondentEmail as string) || response.user?.email || "-",
+      (r.respondentCpf as string) || "-",
+      (r.respondentPhone as string) || "-",
       response.status,
       response.completedAt
         ? new Date(response.completedAt).toLocaleString("pt-BR")

@@ -43,9 +43,9 @@ function getQuestionData(
       const val = getAnswerDisplayValue(answer, optionsMap);
       if (val && val !== "-") {
         // Multipla escolha pode ter valores separados por virgula
-        if (Array.isArray(answer.jsonValue)) {
+        if (Array.isArray(answer.jsonValue) && answer.question.type !== "FILE_UPLOAD") {
           for (const v of answer.jsonValue as string[]) {
-            values.push(optionsMap?.get(v) || v);
+            values.push(optionsMap?.get(String(v)) || String(v));
           }
         } else {
           values.push(val);
@@ -82,11 +82,13 @@ function getNumericStats(values: string[]) {
 
 const choiceTypes = ["SINGLE_SELECT", "MULTIPLE_CHOICE", "DROPDOWN", "YES_NO"];
 const numericTypes = ["NUMBER", "RATING"];
+const skipAnalyticsTypes = ["STATEMENT"];
 
 export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAnalyticsProps) {
   const questionAnalytics = useMemo(() => {
     return questions
       .sort((a, b) => a.order - b.order)
+      .filter((q) => !skipAnalyticsTypes.includes(q.type))
       .map((q) => {
         // Mapa value→label para perguntas de escolha
         let optionsMap: Map<string, string> | undefined;
@@ -97,12 +99,32 @@ export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAna
         const values = getQuestionData(q.id, responses, optionsMap);
         const isChoice = choiceTypes.includes(q.type);
         const isNumeric = numericTypes.includes(q.type);
+        const isFile = q.type === "FILE_UPLOAD";
+
+        // Extrair links de arquivos para FILE_UPLOAD
+        let fileLinks: { name: string; url: string }[] | null = null;
+        if (isFile) {
+          fileLinks = [];
+          for (const response of responses) {
+            const answer = response.answers.find((a) => a.questionId === q.id);
+            if (!answer) continue;
+            if (answer.fileUpload) {
+              fileLinks.push({ name: answer.fileUpload.originalName, url: answer.fileUpload.storageUrl });
+            } else if (Array.isArray(answer.jsonValue)) {
+              for (const f of answer.jsonValue as { originalName?: string; url?: string }[]) {
+                if (f.url) fileLinks.push({ name: f.originalName || "Arquivo", url: f.url });
+              }
+            }
+          }
+        }
+
         return {
           question: q,
           values,
           distribution: isChoice ? getDistribution(values) : null,
           numericStats: isNumeric ? getNumericStats(values) : null,
-          textSample: !isChoice && !isNumeric ? values.slice(0, 5) : null,
+          textSample: !isChoice && !isNumeric && !isFile ? values.slice(0, 5) : null,
+          fileLinks,
         };
       });
   }, [questions, responses]);
@@ -122,7 +144,7 @@ export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAna
         </div>
 
         {/* Graficos por pergunta */}
-        {questionAnalytics.map(({ question, values, distribution, numericStats, textSample }) => (
+        {questionAnalytics.map(({ question, values, distribution, numericStats, textSample, fileLinks }) => (
           <div
             key={question.id}
             className="rounded-2xl bg-surface-container-lowest p-6 space-y-4"
@@ -202,7 +224,7 @@ export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAna
               <div className="space-y-1">
                 {textSample.map((text, i) => (
                   <p key={i} className="text-xs text-on-surface bg-surface-container-low rounded-lg px-3 py-2">
-                    &ldquo;{text}&rdquo;
+                    &ldquo;{String(text)}&rdquo;
                   </p>
                 ))}
                 {values.length > 5 && (
@@ -210,6 +232,23 @@ export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAna
                     ...e mais {values.length - 5} respostas
                   </p>
                 )}
+              </div>
+            )}
+
+            {/* Arquivos enviados */}
+            {fileLinks && fileLinks.length > 0 && (
+              <div className="space-y-1">
+                {fileLinks.map((file, i) => (
+                  <a
+                    key={i}
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-xs text-primary bg-surface-container-low rounded-lg px-3 py-2 hover:bg-primary-fixed transition-colors"
+                  >
+                    <span className="underline">{file.name}</span>
+                  </a>
+                ))}
               </div>
             )}
 

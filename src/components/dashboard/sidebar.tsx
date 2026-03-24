@@ -39,7 +39,7 @@ export function Sidebar() {
 
       {/* Nav principal */}
       <ScrollArea className="flex-1 px-3">
-        <nav className="flex flex-col gap-0.5">
+        <nav className="flex flex-col gap-2">
           {mainNav.map((item) => {
             const isActive =
               item.href === "/dashboard"

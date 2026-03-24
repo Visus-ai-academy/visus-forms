@@ -53,10 +53,10 @@ export function ResponsesTable({
           return (
             <div className="min-w-[120px]">
               <p className="text-sm font-semibold text-on-surface truncate">
-                {user?.name || "Anonimo"}
+                {row.original.respondentName || user?.name || "Anônimo"}
               </p>
               <p className="text-[11px] text-muted-foreground truncate">
-                {user?.email || "-"}
+                {row.original.respondentEmail || user?.email || "-"}
               </p>
             </div>
           );
@@ -127,6 +127,13 @@ export function ResponsesTable({
           const answer = row.original.answers.find((a) => a.questionId === q.id);
           if (!answer) return <span className="text-xs text-muted-foreground">-</span>;
           const value = getAnswerDisplayValue(answer);
+          if (q.type === "FILE_UPLOAD" && answer.fileUpload) {
+            return (
+              <a href={answer.fileUpload.storageUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline truncate block max-w-[200px]">
+                {answer.fileUpload.originalName}
+              </a>
+            );
+          }
           return (
             <span className="text-xs text-on-surface max-w-[200px] truncate block" title={value}>
               {value}

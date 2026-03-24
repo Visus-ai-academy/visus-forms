@@ -81,8 +81,16 @@ function buildFieldSchema(
     case "MULTIPLE_CHOICE":
       return z.array(z.string()).min(1, "Selecione pelo menos uma opcao");
 
-    case "FILE_UPLOAD":
-      return z.any();
+    case "FILE_UPLOAD": {
+      const fileSchema = z.object({
+        url: z.string().url(),
+        storagePath: z.string(),
+        originalName: z.string(),
+        mimeType: z.string(),
+        sizeBytes: z.number(),
+      });
+      return z.array(fileSchema);
+    }
 
     case "STATEMENT":
       return z.any().optional();

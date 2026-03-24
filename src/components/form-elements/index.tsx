@@ -4,6 +4,7 @@ import type { QuestionType } from "@/types/form";
 
 import { ChoiceField } from "./choice-field";
 import { DropdownField } from "./dropdown-field";
+import { FileUploadField, type FileUploadValue } from "./file-upload-field";
 import { PhoneField } from "./phone-field";
 import { RatingField } from "./rating-field";
 import { StatementBlock } from "./statement-block";
@@ -20,6 +21,8 @@ interface QuestionFieldProps {
   title?: string;
   description?: string | null;
   onNext?: () => void;
+  formSlug?: string;
+  questionId?: string;
 }
 
 export function QuestionField({
@@ -32,6 +35,8 @@ export function QuestionField({
   title = "",
   description,
   onNext,
+  formSlug,
+  questionId,
 }: QuestionFieldProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey && onNext) {
@@ -159,11 +164,13 @@ export function QuestionField({
 
     case "FILE_UPLOAD":
       return (
-        <div className="rounded-xl border-2 border-dashed border-on-surface/10 bg-surface-container-lowest p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            Upload de arquivos (em desenvolvimento)
-          </p>
-        </div>
+        <FileUploadField
+          value={(value as FileUploadValue[]) ?? []}
+          onChange={onChange}
+          config={config}
+          formSlug={formSlug ?? ""}
+          questionId={questionId ?? ""}
+        />
       );
 
     case "STATEMENT":

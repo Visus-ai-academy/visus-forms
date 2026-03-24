@@ -21,17 +21,17 @@ const PHONE_REGEX = /^(\(\d{2}\)\s?\d{4,5}-\d{4}|\d{10,11})$/;
 
 function validateByType(question: Question, value: unknown): string | null {
   const strVal = typeof value === "string" ? value.trim() : "";
+  const isArray = Array.isArray(value);
 
   if (question.required) {
-    if (value === undefined || value === null || strVal === "") {
-      return "Este campo e obrigatorio";
-    }
-    if (Array.isArray(value) && value.length === 0) {
-      return "Selecione pelo menos uma opcao";
+    if (isArray) {
+      if (value.length === 0) return "Selecione pelo menos uma opção";
+    } else if (value === undefined || value === null || strVal === "") {
+      return "Este campo é obrigatório";
     }
   }
 
-  if (!strVal && !question.required) return null;
+  if (!isArray && !strVal && !question.required) return null;
 
   switch (question.type) {
     case "EMAIL":
@@ -200,6 +200,8 @@ export function TypeformRenderer({ form, onSubmit }: TypeformRendererProps) {
                             options={question.options}
                             config={question.config}
                             onNext={currentPage.length === 1 ? handleNext : undefined}
+                            formSlug={form.slug}
+                            questionId={question.id}
                           />
                         </FieldWrapper>
                       )}
@@ -234,7 +236,10 @@ export function TypeformRenderer({ form, onSubmit }: TypeformRendererProps) {
                     }}
                   >
                     {isSubmitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
                     ) : isLastPage ? (
                       <>
                         <Check className="h-4 w-4" />

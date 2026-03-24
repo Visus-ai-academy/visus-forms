@@ -44,13 +44,15 @@ export async function PATCH(
     const body = await request.json();
     const data = formSettingsSchema.parse(body);
 
-    const updated = await prisma.formSettings.update({
+    const updated = await (prisma.formSettings.update as Function)({
       where: { formId },
       data,
     });
 
     return NextResponse.json({ data: updated });
-  } catch {
-    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
+  } catch (err) {
+    console.error("Settings update error:", err);
+    const message = err instanceof Error ? err.message : "Dados inválidos";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -68,7 +68,18 @@ export interface FormSettings {
   redirectUrl: string | null;
   notifyOnSubmission: boolean;
   notifyEmails: string[];
+  identificationMode: string;
+  identificationFields: string[];
 }
+
+export type IdentificationField = "name" | "email" | "cpf" | "phone";
+
+export const IDENTIFICATION_FIELD_LABELS: Record<IdentificationField, string> = {
+  name: "Nome",
+  email: "E-mail",
+  cpf: "CPF",
+  phone: "Telefone",
+};
 
 export interface FormTheme {
   id: string;

@@ -146,30 +146,12 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
     duplicateQuestion(question.id, data as Question);
   }
 
-  async function handleTitleChange(title: string) {
+  function handleTitleChange(title: string) {
     updateQuestion(question.id, { title });
-    const res = await fetch(`/api/forms/${formId}/questions/${question.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      toast.error(data.error || "Erro ao salvar");
-    }
   }
 
-  async function handleRequiredChange(required: boolean) {
+  function handleRequiredChange(required: boolean) {
     updateQuestion(question.id, { required });
-    const res = await fetch(`/api/forms/${formId}/questions/${question.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ required }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      toast.error(data.error || "Erro ao salvar");
-    }
   }
 
   return (

@@ -50,6 +50,7 @@ export async function GET(
                 options: { orderBy: { order: "asc" }, select: { value: true, label: true } },
               },
             },
+            fileUpload: true,
           },
         },
         user: { select: { id: true, name: true, email: true } },

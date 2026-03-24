@@ -21,6 +21,7 @@ function QuestionCard({
   error,
   onChange,
   titleColor,
+  formSlug,
 }: {
   question: Question;
   index: number;
@@ -28,6 +29,7 @@ function QuestionCard({
   error?: string;
   onChange: (questionId: string, value: unknown) => void;
   titleColor?: string;
+  formSlug?: string;
 }) {
   if (question.type === "STATEMENT") {
     return (
@@ -58,6 +60,8 @@ function QuestionCard({
         placeholder={question.placeholder}
         options={question.options}
         config={question.config}
+        formSlug={formSlug}
+        questionId={question.id}
       />
     </FieldWrapper>
   );
@@ -214,6 +218,7 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
                       error={errors[item.question.id]}
                       onChange={handleAnswer}
                       titleColor={form.theme?.titleColor}
+                      formSlug={form.slug}
                     />
                   </div>
                 </motion.div>
@@ -238,6 +243,7 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
                       error={errors[question.id]}
                       onChange={handleAnswer}
                       titleColor={form.theme?.titleColor}
+                      formSlug={form.slug}
                     />
                   </div>
                 </motion.div>
@@ -258,7 +264,10 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
             }}
           >
             {isSubmitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Enviando...
+              </>
             ) : (
               <>
                 <Check className="h-4 w-4" />

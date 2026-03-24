@@ -27,7 +27,7 @@ export async function GET(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   const where = {

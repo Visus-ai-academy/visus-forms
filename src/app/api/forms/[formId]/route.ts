@@ -41,7 +41,7 @@ export async function GET(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   return NextResponse.json({ data: form });
@@ -68,7 +68,7 @@ export async function PATCH(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   try {
@@ -82,7 +82,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }
 
@@ -107,7 +107,7 @@ export async function DELETE(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   await prisma.form.delete({ where: { id: formId } });

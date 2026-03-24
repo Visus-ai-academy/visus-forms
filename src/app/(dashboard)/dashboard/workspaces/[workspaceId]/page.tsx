@@ -51,9 +51,9 @@ export default async function WorkspaceDetailPage({
           <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">{workspace.name}</h1>
           {workspace.description && <p className="text-sm text-muted-foreground">{workspace.description}</p>}
         </div>
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-3">
           {/* Workflows */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold font-heading text-on-surface">Workflows</h2>
               <CreateWorkflowModal
@@ -81,13 +81,13 @@ export default async function WorkspaceDetailPage({
                 />
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-2">
                 {workspace.workflows.map((workflow) => (
                   <Link
                     key={workflow.id}
                     href={`/dashboard/workspaces/${workspaceId}/workflows/${workflow.id}`}
                   >
-                    <div className="group rounded-2xl bg-surface-container-lowest p-4 transition-all duration-200 hover:shadow-ambient">
+                    <div className="group rounded-2xl bg-surface-container-lowest p-5 transition-all duration-200 hover:shadow-ambient">
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold font-heading text-on-surface group-hover:text-primary transition-colors">
@@ -122,14 +122,14 @@ export default async function WorkspaceDetailPage({
           </div>
 
           {/* Membros */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <h2 className="text-lg font-bold font-heading text-on-surface">
               <Users className="mr-2 h-4 w-4 inline" />
               Membros ({workspace.members.length})
             </h2>
             <div className="rounded-2xl bg-surface-container-lowest divide-y divide-border">
               {workspace.members.map((member) => (
-                <div key={member.id} className="flex items-center justify-between px-4 py-3">
+                <div key={member.id} className="flex items-center justify-between px-5 py-4">
                   <div>
                     <p className="text-sm font-medium text-on-surface">
                       {member.user.name || member.user.email}

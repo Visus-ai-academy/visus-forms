@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Tipo de arquivo nao permitido. Use JPG, PNG, GIF, WebP ou SVG." }, { status: 400 });
+      return NextResponse.json({ error: "Tipo de arquivo não permitido. Use JPG, PNG, GIF, WebP ou SVG." }, { status: 400 });
     }
 
     if (file.size > MAX_SIZE) {

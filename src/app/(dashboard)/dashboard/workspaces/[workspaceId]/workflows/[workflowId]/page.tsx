@@ -80,7 +80,7 @@ export default async function WorkflowDetailPage({
           <div className="rounded-2xl bg-surface-container-lowest p-12 text-center">
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">
-              Nenhum formulario criado neste workflow
+              Nenhum formulário criado neste workflow
             </p>
             <CreateFormModal
               workflowId={workflowId}

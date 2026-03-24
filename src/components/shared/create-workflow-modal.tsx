@@ -79,14 +79,14 @@ export function CreateWorkflowModal({ workspaceId, trigger }: CreateWorkflowModa
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Pesquisa de Satisfacao"
+              placeholder="Ex: Pesquisa de Satisfação"
               className="rounded-lg bg-surface-container-low border-0 h-11"
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Descricao (opcional)
+              Descrição (opcional)
             </Label>
             <Textarea
               value={description}

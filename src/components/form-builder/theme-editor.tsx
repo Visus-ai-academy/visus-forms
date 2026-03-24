@@ -36,7 +36,7 @@ const GOOGLE_FONTS = [
 
 const BUTTON_STYLES = [
   { value: "rounded", label: "Arredondado" },
-  { value: "pill", label: "Pilula" },
+  { value: "pill", label: "Pílula" },
   { value: "square", label: "Quadrado" },
 ];
 
@@ -148,7 +148,7 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
       const failed = results.some((r) => !r.ok);
       if (failed) { toast.error("Erro ao salvar"); }
       else {
-        toast.success("Alteracoes salvas!");
+        toast.success("Alterações salvas!");
         if (hasChanges) updateTheme(theme);
         if (hasSettingsChanges) updateStoreSettings(settings as Partial<NonNullable<FormDefinition["settings"]>>);
         if (hasOrderChanges && pendingOrder) reorderQuestions(pendingOrder);
@@ -222,7 +222,7 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
                 <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Comportamento</p>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Modo de apresentacao</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Modo de apresentação</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <button onClick={() => updateSettings("presentationMode", "ONE_AT_A_TIME")} className={`rounded-lg px-3 py-2.5 text-xs font-medium transition-all text-center ${settings.presentationMode === "ONE_AT_A_TIME" ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
                     Uma por vez<span className="block text-[10px] opacity-60 mt-0.5">Estilo TypeForm</span>
@@ -241,7 +241,7 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
                 <Switch checked={settings.allowMultipleSubmissions ?? false} onCheckedChange={(val) => updateSettings("allowMultipleSubmissions", val)} />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mensagem de confirmacao</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mensagem de confirmação</Label>
                 <Input value={settings.confirmationMessage ?? ""} onChange={(e) => updateSettings("confirmationMessage", e.target.value || null)} placeholder="Obrigado por responder!" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
               </div>
               <div className="space-y-1.5">

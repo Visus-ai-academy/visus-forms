@@ -25,7 +25,7 @@ export async function GET(
   });
 
   if (!settings) {
-    return NextResponse.json({ error: "Nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
   }
 
   return NextResponse.json({ data: settings });
@@ -51,6 +51,6 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

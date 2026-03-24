@@ -96,7 +96,7 @@ export function ResponsesTable({
       },
       {
         accessorKey: "duration",
-        header: "Duracao",
+        header: "Duração",
         cell: ({ row }) => {
           const d = row.original.duration;
           if (!d) return <span className="text-xs text-muted-foreground">-</span>;

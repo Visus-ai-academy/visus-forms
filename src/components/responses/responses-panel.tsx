@@ -76,7 +76,7 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
 
   const tabs: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "tabela", label: "Tabela", icon: Table2 },
-    { id: "analitico", label: "Analitico", icon: BarChart3 },
+    { id: "analitico", label: "Analítico", icon: BarChart3 },
     { id: "individual", label: "Individual", icon: User },
   ];
 
@@ -114,11 +114,11 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
                   <strong className="text-on-surface">{data.stats.total}</strong> respostas
                 </span>
                 <span>
-                  <strong className="text-on-surface">{data.stats.completionRate}%</strong> conclusao
+                  <strong className="text-on-surface">{data.stats.completionRate}%</strong> conclusão
                 </span>
                 {data.stats.avgDuration > 0 && (
                   <span>
-                    <strong className="text-on-surface">{Math.round(data.stats.avgDuration / 60)}</strong> min media
+                    <strong className="text-on-surface">{Math.round(data.stats.avgDuration / 60)}</strong> min média
                   </span>
                 )}
               </div>
@@ -169,7 +169,7 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
                 Nenhuma resposta ainda
               </p>
               <p className="text-sm text-muted-foreground">
-                As respostas aparecerao aqui quando o formulario for respondido.
+                As respostas aparecerão aqui quando o formulario for respondido.
               </p>
             </div>
           </div>

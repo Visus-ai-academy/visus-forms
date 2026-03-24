@@ -22,7 +22,7 @@ export async function PATCH(
   });
 
   if (!currentMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   try {
@@ -37,7 +37,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }
 
@@ -55,7 +55,7 @@ export async function DELETE(
   });
 
   if (!currentMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   const target = await prisma.workspaceMember.findUnique({ where: { id: memberId } });

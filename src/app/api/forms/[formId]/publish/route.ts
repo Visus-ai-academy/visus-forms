@@ -25,7 +25,7 @@ export async function POST(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   if (form._count.questions === 0) {
@@ -64,7 +64,7 @@ export async function DELETE(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   const updated = await prisma.form.update({

@@ -192,13 +192,13 @@ export const OPERATOR_LABELS: Record<ConditionalOperator, string> = {
   EQUALS: "e igual a",
   NOT_EQUALS: "e diferente de",
   CONTAINS: "contem",
-  NOT_CONTAINS: "nao contem",
+  NOT_CONTAINS: "não contém",
   GREATER_THAN: "e maior que",
   LESS_THAN: "e menor que",
   GREATER_EQUAL: "e maior ou igual a",
   LESS_EQUAL: "e menor ou igual a",
   IS_EMPTY: "esta vazio",
-  IS_NOT_EMPTY: "nao esta vazio",
+  IS_NOT_EMPTY: "não está vazio",
   IN_LIST: "esta na lista",
 };
 

@@ -86,7 +86,7 @@ export function SharePanel({ formId }: SharePanelProps) {
                 Compartilhar
               </h2>
               <p className="text-sm text-muted-foreground">
-                Compartilhe seu formulario com um link, QR code ou embed.
+                Compartilhe seu formulário com um link, QR code ou embed.
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@ export function SharePanel({ formId }: SharePanelProps) {
           {!isPublished && (
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-sm text-amber-700">
-                O formulario precisa estar <strong>publicado</strong> para ser acessado pelo link publico.
+                O formulário precisa estar <strong>publicado</strong> para ser acessado pelo link publico.{" "}
                 Clique em &ldquo;Publicar&rdquo; no canto superior direito.
               </p>
             </div>

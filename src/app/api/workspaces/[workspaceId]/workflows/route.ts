@@ -18,7 +18,7 @@ export async function GET(
   });
 
   if (!isMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   const workflows = await prisma.workflow.findMany({
@@ -46,7 +46,7 @@ export async function POST(
   });
 
   if (!isMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   try {
@@ -70,6 +70,6 @@ export async function POST(
 
     return NextResponse.json({ data: workflow }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

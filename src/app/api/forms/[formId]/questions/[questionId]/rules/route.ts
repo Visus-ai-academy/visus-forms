@@ -54,7 +54,7 @@ export async function POST(
   });
 
   if (!question) {
-    return NextResponse.json({ error: "Pergunta nao encontrada" }, { status: 404 });
+    return NextResponse.json({ error: "Pergunta não encontrada" }, { status: 404 });
   }
 
   try {
@@ -80,6 +80,6 @@ export async function POST(
 
     return NextResponse.json({ data: rule }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

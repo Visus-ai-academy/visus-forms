@@ -83,7 +83,7 @@ export default function NewWorkspacePage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="description" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Descricao (opcional)
+              Descrição (opcional)
             </Label>
             <Textarea
               id="description"

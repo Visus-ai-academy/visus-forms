@@ -201,6 +201,25 @@
   }
 }
 
+/* Cursor pointer global para elementos clicáveis */
+button,
+[role="button"],
+a,
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+label[for],
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 /* Design System: utility classes */
 @layer utilities {
   .btn-primary-gradient {

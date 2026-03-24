@@ -23,7 +23,7 @@ export default function PublicFormPage() {
         const res = await fetch(`/api/submit/${params.slug}`);
         if (!res.ok) {
           const data = await res.json();
-          setError(data.error || "Formulario nao encontrado");
+          setError(data.error || "Formulário não encontrado");
           return;
         }
         const { data } = await res.json();

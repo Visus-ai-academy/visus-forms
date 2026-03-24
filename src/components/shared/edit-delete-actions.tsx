@@ -103,7 +103,7 @@ export function EditDeleteActions({
           <DialogHeader>
             <DialogTitle>Editar {entityLabel}</DialogTitle>
             <DialogDescription>
-              Altere as informacoes do {entityLabel.toLowerCase()}.
+              Altere as informações do {entityLabel.toLowerCase()}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">
@@ -119,7 +119,7 @@ export function EditDeleteActions({
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Descricao (opcional)
+                Descrição (opcional)
               </Label>
               <Textarea
                 value={description}
@@ -156,7 +156,7 @@ export function EditDeleteActions({
           <DialogHeader>
             <DialogTitle>Excluir {entityLabel}</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir <strong>{entityName}</strong>? Esta acao nao pode ser desfeita.
+              Tem certeza que deseja excluir <strong>{entityName}</strong>? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 justify-end pt-4">

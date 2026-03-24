@@ -245,7 +245,7 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
                   checked={question.required}
                   onCheckedChange={handleRequiredChange}
                 />
-                <span className="text-xs text-muted-foreground">Obrigatoria</span>
+                <span className="text-xs text-muted-foreground">Obrigatória</span>
               </div>
             </div>
           )}

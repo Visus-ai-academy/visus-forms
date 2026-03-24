@@ -32,7 +32,7 @@ export async function GET(
   });
 
   if (!question) {
-    return NextResponse.json({ error: "Pergunta nao encontrada" }, { status: 404 });
+    return NextResponse.json({ error: "Pergunta não encontrada" }, { status: 404 });
   }
 
   return NextResponse.json({ data: question });
@@ -62,7 +62,7 @@ export async function PATCH(
   });
 
   if (!question) {
-    return NextResponse.json({ error: "Pergunta nao encontrada" }, { status: 404 });
+    return NextResponse.json({ error: "Pergunta não encontrada" }, { status: 404 });
   }
 
   const locked = await checkFormLocked(formId);
@@ -111,7 +111,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }
 
@@ -139,7 +139,7 @@ export async function DELETE(
   });
 
   if (!question) {
-    return NextResponse.json({ error: "Pergunta nao encontrada" }, { status: 404 });
+    return NextResponse.json({ error: "Pergunta não encontrada" }, { status: 404 });
   }
 
   const lockedDel = await checkFormLocked(formId);

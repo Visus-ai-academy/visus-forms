@@ -18,7 +18,7 @@ export async function GET(
   });
 
   if (!isMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   const workflow = await prisma.workflow.findFirst({
@@ -40,7 +40,7 @@ export async function GET(
   });
 
   if (!workflow) {
-    return NextResponse.json({ error: "Workflow nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Workflow não encontrado" }, { status: 404 });
   }
 
   return NextResponse.json({ data: workflow });
@@ -60,7 +60,7 @@ export async function PATCH(
   });
 
   if (!isMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   try {
@@ -74,7 +74,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }
 
@@ -92,7 +92,7 @@ export async function DELETE(
   });
 
   if (!isMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   await prisma.workflow.delete({ where: { id: workflowId } });

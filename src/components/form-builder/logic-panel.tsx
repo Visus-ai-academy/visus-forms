@@ -107,7 +107,7 @@ export function LogicPanel({ formId }: LogicPanelProps) {
           {form.questions.length === 0 ? (
             <div className="rounded-2xl bg-surface-container-lowest p-8 text-center">
               <p className="text-muted-foreground">
-                Adicione perguntas ao formulario para configurar a logica condicional.
+                Adicione perguntas ao formulário para configurar a logica condicional.
               </p>
             </div>
           ) : (

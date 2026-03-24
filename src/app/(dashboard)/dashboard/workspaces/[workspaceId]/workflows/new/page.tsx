@@ -83,7 +83,7 @@ export default function NewWorkflowPage() {
               <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
-                placeholder="Ex: Pesquisa de Satisfacao"
+                placeholder="Ex: Pesquisa de Satisfação"
                 {...register("name")}
               />
               {errors.name && (
@@ -93,7 +93,7 @@ export default function NewWorkflowPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Descricao (opcional)</Label>
+              <Label htmlFor="description">Descrição (opcional)</Label>
               <Textarea
                 id="description"
                 placeholder="Descreva o workflow..."

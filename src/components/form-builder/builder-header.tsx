@@ -38,11 +38,11 @@ export function BuilderHeader({ workspaceId, workflowId }: BuilderHeaderProps) {
 
     if (!res.ok) {
       const result = await res.json();
-      toast.error(result.error || "Erro ao alterar publicacao");
+      toast.error(result.error || "Erro ao alterar publicação");
       return;
     }
 
-    toast.success(isPublished ? "Formulario despublicado" : "Formulario publicado!");
+    toast.success(isPublished ? "Formulário despublicado" : "Formulario publicado!");
     router.refresh();
   }
 

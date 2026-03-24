@@ -87,7 +87,7 @@ export function CreateWorkspaceModal({ trigger }: CreateWorkspaceModalProps) {
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Descricao (opcional)
+              Descrição (opcional)
             </Label>
             <Textarea
               value={description}

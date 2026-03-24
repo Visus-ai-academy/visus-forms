@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ data: workspace }, { status: 201 });
   } catch (err) {
     if (err instanceof Error && err.name === "ZodError") {
-      return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+      return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
     }
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }

@@ -73,7 +73,7 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
         <DialogHeader>
           <DialogTitle>Novo Formulario</DialogTitle>
           <DialogDescription>
-            Crie um novo formulario para este workflow.
+            Crie um novo formulário para este workflow.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
@@ -84,14 +84,14 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Pesquisa de Satisfacao Q1"
+              placeholder="Ex: Pesquisa de Satisfação Q1"
               className="rounded-lg bg-surface-container-low border-0 h-11"
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Descricao (opcional)
+              Descrição (opcional)
             </Label>
             <Textarea
               value={description}

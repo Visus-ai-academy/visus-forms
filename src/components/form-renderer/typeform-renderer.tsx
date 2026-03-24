@@ -121,7 +121,7 @@ export function TypeformRenderer({ form, onSubmit }: TypeformRendererProps) {
   if (pages.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Este formulario nao possui perguntas.</p>
+        <p className="text-muted-foreground">Este formulário nao possui perguntas.</p>
       </div>
     );
   }

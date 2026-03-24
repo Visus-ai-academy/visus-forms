@@ -2,11 +2,9 @@
 
 import {
   FileText,
-  HelpCircle,
   LayoutDashboard,
   LogOut,
   Plus,
-  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,8 +16,7 @@ import { cn } from "@/lib/utils";
 
 const mainNav = [
   { name: "Workspaces", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Formularios", href: "/dashboard/forms", icon: FileText },
-  { name: "Configuracoes", href: "/dashboard/settings", icon: Settings },
+  { name: "Formulários", href: "/dashboard/forms", icon: FileText },
 ];
 
 export function Sidebar() {
@@ -77,18 +74,7 @@ export function Sidebar() {
         </div>
       </ScrollArea>
 
-      {/* Rodape */}
-      <div className="px-3 pb-2">
-        <Link
-          href="#"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-on-surface/50 hover:text-on-surface/80 transition-colors"
-        >
-          <HelpCircle className="h-[18px] w-[18px]" />
-          Ajuda
-        </Link>
-      </div>
-
-      {/* Usuario */}
+      {/* Usuário */}
       <div className="flex items-center gap-3 px-5 py-4">
         <Avatar className="h-8 w-8">
           <AvatarFallback className="bg-surface-container-high text-xs font-medium">

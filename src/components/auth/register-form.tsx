@@ -20,7 +20,7 @@ const registerSchema = z
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "As senhas nao coincidem",
+    message: "As senhas não coincidem",
     path: ["confirmPassword"],
   });
 
@@ -59,7 +59,7 @@ export function RegisterForm() {
         return;
       }
 
-      toast.success("Conta criada com sucesso! Faca login.");
+      toast.success("Conta criada com sucesso! Faça login.");
       router.push("/login");
     } catch {
       toast.error("Ocorreu um erro. Tente novamente.");
@@ -153,7 +153,7 @@ export function RegisterForm() {
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        Ja tem uma conta?{" "}
+        Já tem uma conta?{" "}
         <Link href="/login" className="font-semibold text-primary hover:underline">
           Entrar
         </Link>

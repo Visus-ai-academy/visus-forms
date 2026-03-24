@@ -18,7 +18,7 @@ export async function GET(
   });
 
   if (!isMember) {
-    return NextResponse.json({ error: "Sem permissao" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
   const members = await prisma.workspaceMember.findMany({
@@ -44,7 +44,7 @@ export async function POST(
   });
 
   if (!currentMember) {
-    return NextResponse.json({ error: "Sem permissao para convidar membros" }, { status: 403 });
+    return NextResponse.json({ error: "Sem permissão para convidar membros" }, { status: 403 });
   }
 
   try {
@@ -53,7 +53,7 @@ export async function POST(
 
     const user = await prisma.user.findUnique({ where: { email: data.email } });
     if (!user) {
-      return NextResponse.json({ error: "Usuario nao encontrado" }, { status: 404 });
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
     }
 
     const existing = await prisma.workspaceMember.findUnique({
@@ -75,6 +75,6 @@ export async function POST(
 
     return NextResponse.json({ data: member }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

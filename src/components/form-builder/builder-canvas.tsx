@@ -69,7 +69,7 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
           <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
             <Lock className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
             <p className="text-[11px] text-amber-700 leading-tight">
-              Edicao bloqueada. Despublique o formulario para editar perguntas.
+              Edição bloqueada. Despublique o formulário para editar perguntas.
             </p>
           </div>
         )}
@@ -116,12 +116,10 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
       >
         <div className="w-full max-w-xl mx-auto">
           {form.questions.length === 0 ? (
-            <div className="text-center space-y-4">
-              <p className="text-4xl font-extrabold font-heading text-on-surface/20 leading-tight">
-                Digite sua pergunta aqui...
-              </p>
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-3 py-20">
+              <FileText className="h-12 w-12 text-muted-foreground/30" />
               <p className="text-sm text-muted-foreground">
-                Adicione perguntas na barra lateral para comecar a construir seu formulario.
+                Nenhuma pergunta adicionada. Use o menu lateral para adicionar perguntas ao formulario.
               </p>
             </div>
           ) : (

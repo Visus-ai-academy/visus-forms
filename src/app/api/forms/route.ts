@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
     if (!workflow) {
       return NextResponse.json(
-        { error: "Workflow nao encontrado ou sem permissao" },
+        { error: "Workflow não encontrado ou sem permissão" },
         { status: 404 }
       );
     }
@@ -69,6 +69,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ data: form }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

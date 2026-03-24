@@ -25,7 +25,7 @@ export async function GET(
   });
 
   if (!theme) {
-    return NextResponse.json({ error: "Nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
   }
 
   return NextResponse.json({ data: theme });
@@ -52,7 +52,7 @@ export async function PATCH(
     return NextResponse.json({ data: updated });
   } catch (err) {
     console.error("Theme update error:", err);
-    const message = err instanceof Error ? err.message : "Dados invalidos";
+    const message = err instanceof Error ? err.message : "Dados inválidos";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

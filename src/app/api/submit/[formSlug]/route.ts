@@ -31,7 +31,7 @@ export async function GET(
 
   if (!form) {
     return NextResponse.json(
-      { error: "Formulario nao encontrado ou nao publicado" },
+      { error: "Formulário não encontrado ou não publicado" },
       { status: 404 }
     );
   }
@@ -43,7 +43,7 @@ export async function GET(
     });
     if (count >= form.settings.limitResponses) {
       return NextResponse.json(
-        { error: "Este formulario atingiu o limite de respostas" },
+        { error: "Este formulário atingiu o limite de respostas" },
         { status: 410 }
       );
     }
@@ -53,13 +53,13 @@ export async function GET(
   const now = new Date();
   if (form.settings?.scheduledOpenAt && new Date(form.settings.scheduledOpenAt) > now) {
     return NextResponse.json(
-      { error: "Este formulario ainda nao esta disponivel" },
+      { error: "Este formulário ainda não está disponível" },
       { status: 403 }
     );
   }
   if (form.settings?.scheduledCloseAt && new Date(form.settings.scheduledCloseAt) < now) {
     return NextResponse.json(
-      { error: "Este formulario ja foi encerrado" },
+      { error: "Este formulário ja foi encerrado" },
       { status: 410 }
     );
   }
@@ -93,7 +93,7 @@ export async function POST(
 
   if (!form) {
     return NextResponse.json(
-      { error: "Formulario nao encontrado ou nao publicado" },
+      { error: "Formulário não encontrado ou não publicado" },
       { status: 404 }
     );
   }
@@ -113,7 +113,7 @@ export async function POST(
     if (!validated.success) {
       return NextResponse.json(
         {
-          error: "Dados invalidos",
+          error: "Dados inválidos",
           details: validated.error.flatten().fieldErrors,
         },
         { status: 400 }

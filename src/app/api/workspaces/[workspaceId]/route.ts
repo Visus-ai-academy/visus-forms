@@ -29,7 +29,7 @@ export async function GET(
   });
 
   if (!workspace) {
-    return NextResponse.json({ error: "Workspace nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Workspace não encontrado" }, { status: 404 });
   }
 
   return NextResponse.json({ data: workspace });
@@ -49,7 +49,7 @@ export async function PATCH(
   });
 
   if (!workspace) {
-    return NextResponse.json({ error: "Workspace nao encontrado ou sem permissao" }, { status: 404 });
+    return NextResponse.json({ error: "Workspace não encontrado ou sem permissão" }, { status: 404 });
   }
 
   try {
@@ -63,7 +63,7 @@ export async function PATCH(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }
 
@@ -81,7 +81,7 @@ export async function DELETE(
   });
 
   if (!workspace) {
-    return NextResponse.json({ error: "Workspace nao encontrado ou sem permissao" }, { status: 404 });
+    return NextResponse.json({ error: "Workspace não encontrado ou sem permissão" }, { status: 404 });
   }
 
   await prisma.workspace.delete({ where: { id: workspaceId } });

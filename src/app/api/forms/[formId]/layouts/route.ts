@@ -64,7 +64,7 @@ export async function PUT(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   try {
@@ -108,6 +108,6 @@ export async function PUT(
 
     return NextResponse.json({ data: updated });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

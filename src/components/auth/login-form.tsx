@@ -1,7 +1,6 @@
 "use client";
 
-import { FileText, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
@@ -14,8 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const loginSchema = z.object({
-  email: z.string().email("Email invalido"),
-  password: z.string().min(1, "Senha e obrigatoria"),
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(1, "Senha é obrigatória"),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
@@ -43,7 +42,7 @@ export function LoginForm() {
       });
 
       if (result?.error) {
-        toast.error("Email ou senha incorretos");
+        toast.error("E-mail ou senha incorretos");
         return;
       }
 
@@ -60,7 +59,6 @@ export function LoginForm() {
     <div className="rounded-3xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
       {/* Header */}
       <div className="text-center space-y-3">
-        <img src="/LOGOTIPO_V1.png" alt="Visus" className="mx-auto h-16 object-contain" />
         <div>
           <h1 className="text-2xl font-bold font-heading text-on-surface">Visus Forms</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -72,7 +70,7 @@ export function LoginForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Email
+            E-mail
           </Label>
           <Input
             id="email"
@@ -111,12 +109,10 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Nao tem uma conta?{" "}
-        <Link href="/register" className="font-semibold text-primary hover:underline">
-          Cadastre-se
-        </Link>
-      </p>
+      {/* Logo no rodapé */}
+      <div className="flex justify-center pt-2">
+        <img src="/LOGOTIPO_V1.png" alt="Visus" className="h-12 object-contain opacity-40" />
+      </div>
     </div>
   );
 }

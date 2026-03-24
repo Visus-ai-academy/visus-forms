@@ -26,7 +26,7 @@ export async function POST(
   });
 
   if (!form) {
-    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+    return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
   }
 
   const locked = await checkFormLocked(formId);
@@ -47,6 +47,6 @@ export async function POST(
 
     return NextResponse.json({ data: { success: true } });
   } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 }

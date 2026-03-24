@@ -114,9 +114,9 @@ export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAna
         <div className="grid grid-cols-4 gap-4">
           <StatCard label="Total de respostas" value={stats.total} />
           <StatCard label="Completas" value={stats.completed} />
-          <StatCard label="Taxa de conclusao" value={`${stats.completionRate}%`} />
+          <StatCard label="Taxa de conclusão" value={`${stats.completionRate}%`} />
           <StatCard
-            label="Tempo medio"
+            label="Tempo médio"
             value={stats.avgDuration > 0 ? `${Math.round(stats.avgDuration / 60)}min` : "-"}
           />
         </div>

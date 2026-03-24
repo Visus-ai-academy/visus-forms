@@ -15,6 +15,7 @@ import { HexColorPicker } from "react-colorful";
 import { toast } from "sonner";
 
 import { FieldWrapper, QuestionField } from "@/components/form-elements";
+import { ImageUploadField } from "@/components/shared/image-upload-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -99,36 +100,29 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
     setHasSettingsChanges(true);
   }, []);
 
-  // Auto-save theme
-  useEffect(() => {
-    if (!hasChanges) return;
-    const timer = setTimeout(async () => {
-      setIsSaving(true);
-      try { const res = await fetch(`/api/forms/${formId}/theme`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(theme) }); if (!res.ok) toast.error("Erro ao salvar tema"); }
-      catch { toast.error("Erro ao salvar tema"); }
-      finally { setIsSaving(false); setHasChanges(false); }
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [theme, hasChanges, formId]);
+  const hasPendingChanges = hasChanges || hasSettingsChanges;
 
-  // Auto-save settings
-  useEffect(() => {
-    if (!hasSettingsChanges) return;
-    const timer = setTimeout(async () => {
-      try { const res = await fetch(`/api/forms/${formId}/settings`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) }); if (!res.ok) toast.error("Erro ao salvar configuracoes"); }
-      catch { toast.error("Erro ao salvar configuracoes"); }
-      finally { setHasSettingsChanges(false); }
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [settings, hasSettingsChanges, formId]);
+  async function handleSave() {
+    setIsSaving(true);
+    try {
+      const results = await Promise.all([
+        hasChanges ? fetch(`/api/forms/${formId}/theme`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(theme) }) : null,
+        hasSettingsChanges ? fetch(`/api/forms/${formId}/settings`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) }) : null,
+      ]);
+      const failed = results.some((r) => r && !r.ok);
+      if (failed) { toast.error("Erro ao salvar"); }
+      else { toast.success("Alteracoes salvas!"); setHasChanges(false); setHasSettingsChanges(false); }
+    } catch { toast.error("Erro ao salvar"); }
+    finally { setIsSaving(false); }
+  }
 
   function handleReset() { setTheme(DEFAULT_THEME); setHasChanges(true); }
 
   return (
     <div className="flex h-full">
       {/* ─── Sidebar de configuracoes ─── */}
-      <div className="w-[300px] border-r border-surface-container-low bg-surface shrink-0">
-        <ScrollArea className="h-full">
+      <div className="w-[300px] border-r border-surface-container-low bg-surface shrink-0 flex flex-col">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-5 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -136,12 +130,7 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
                 <div className="rounded-xl bg-primary-fixed p-2">
                   <Paintbrush className="h-4 w-4 text-primary" />
                 </div>
-                <div>
-                  <h2 className="text-sm font-bold font-heading text-on-surface">Aparencia</h2>
-                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    {isSaving ? (<><Loader2 className="h-2.5 w-2.5 animate-spin" />Salvando...</>) : "Salvo automaticamente"}
-                  </p>
-                </div>
+                <h2 className="text-sm font-bold font-heading text-on-surface">Aparencia</h2>
               </div>
               <button onClick={handleReset} className="rounded-lg p-1.5 text-on-surface/40 hover:text-on-surface hover:bg-surface-container-low transition-colors" title="Restaurar padrao">
                 <RotateCcw className="h-3.5 w-3.5" />
@@ -154,17 +143,6 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
               <ColorPickerField label="Cor primaria" color={theme.primaryColor} onChange={(c) => updateField("primaryColor", c)} />
               <ColorPickerField label="Cor de fundo" color={theme.backgroundColor} onChange={(c) => updateField("backgroundColor", c)} />
               <ColorPickerField label="Cor do texto" color={theme.textColor} onChange={(c) => updateField("textColor", c)} />
-            </div>
-
-            {/* Tipografia */}
-            <div className="space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Tipografia</p>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fonte</Label>
-                <select value={theme.fontFamily} onChange={(e) => updateField("fontFamily", e.target.value)} className="w-full rounded-lg bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface border-0">
-                  {GOOGLE_FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-                </select>
-              </div>
             </div>
 
             {/* Botoes */}
@@ -180,16 +158,10 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
             </div>
 
             {/* Logo */}
-            <div className="space-y-1.5">
-              <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Logo</p>
-              <Input value={theme.logoUrl ?? ""} onChange={(e) => updateField("logoUrl", e.target.value || null)} placeholder="https://exemplo.com/logo.png" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
-            </div>
+            <ImageUploadField label="Logo" value={theme.logoUrl} onChange={(url) => updateField("logoUrl", url)} />
 
             {/* Imagem de fundo */}
-            <div className="space-y-1.5">
-              <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Imagem de fundo</p>
-              <Input value={theme.backgroundImageUrl ?? ""} onChange={(e) => updateField("backgroundImageUrl", e.target.value || null)} placeholder="https://exemplo.com/bg.jpg" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
-            </div>
+            <ImageUploadField label="Imagem de fundo" value={theme.backgroundImageUrl} onChange={(url) => updateField("backgroundImageUrl", url)} />
 
             {/* Layout e Comportamento */}
             <div className="space-y-3">
@@ -226,13 +198,20 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
               </div>
             </div>
 
-            {/* CSS Customizado */}
-            <div className="space-y-1.5">
-              <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">CSS Customizado</p>
-              <textarea value={theme.customCss ?? ""} onChange={(e) => updateField("customCss", e.target.value || null)} placeholder=".form-container { ... }" rows={4} className="w-full rounded-lg bg-surface-container-lowest px-3 py-2 text-xs font-mono text-on-surface border-0 resize-none" />
-            </div>
           </div>
         </ScrollArea>
+
+        {/* Botao salvar fixo */}
+        <div className="p-3 border-t border-surface-container-low shrink-0">
+          <button
+            onClick={handleSave}
+            disabled={isSaving || !hasPendingChanges}
+            className="btn-primary-gradient w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
+          >
+            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+            {isSaving ? "Salvando..." : "Salvar alteracoes"}
+          </button>
+        </div>
       </div>
 
       {/* ─── Preview Real ─── */}
@@ -357,7 +336,14 @@ function DesignLivePreview({ form, theme, settings, formId }: {
   }
 
   return (
-    <div style={{ backgroundColor: theme.backgroundColor, color: theme.textColor, fontFamily: theme.fontFamily }}>
+    <div style={{
+      backgroundColor: theme.backgroundColor,
+      color: theme.textColor,
+      fontFamily: theme.fontFamily,
+      backgroundImage: theme.backgroundImageUrl ? `url(${theme.backgroundImageUrl})` : undefined,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    }}>
       {isTypeForm ? (
         /* ─── Modo TypeForm: cada pergunta como pagina individual ─── */
         <div className="space-y-6 p-6">

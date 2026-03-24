@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
-import { Header } from "@/components/dashboard/header";
 import { CreateFormModal } from "@/components/shared/create-form-modal";
 import { Badge } from "@/components/ui/badge";
 import { authOptions } from "@/lib/auth";
@@ -60,11 +59,12 @@ export default async function WorkflowDetailPage({
 
   return (
     <>
-      <Header title={workflow.name} description={workflow.description || undefined} />
-
-      <div className="p-6 space-y-6">
+      <div className="px-8 py-8 space-y-6">
         <div className="flex items-center justify-between">
-          <div />
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">{workflow.name}</h1>
+            {workflow.description && <p className="text-sm text-muted-foreground">{workflow.description}</p>}
+          </div>
           <CreateFormModal
             workflowId={workflowId}
             trigger={

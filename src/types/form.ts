@@ -76,6 +76,8 @@ export interface FormTheme {
   primaryColor: string;
   backgroundColor: string;
   textColor: string;
+  titleColor: string;
+  formTitleColor: string;
   fontFamily: string;
   logoUrl: string | null;
   backgroundImageUrl: string | null;
@@ -97,6 +99,7 @@ export interface FormDefinition {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  submissionCount?: number;
 }
 
 export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {

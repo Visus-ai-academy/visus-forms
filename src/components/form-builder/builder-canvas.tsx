@@ -14,7 +14,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { FileText } from "lucide-react";
+import { FileText, Lock } from "lucide-react";
 
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 
@@ -26,7 +26,7 @@ interface BuilderCanvasProps {
 }
 
 export function BuilderCanvas({ formId }: BuilderCanvasProps) {
-  const { form, reorderQuestions, setSelectedQuestion } = useFormBuilderStore();
+  const { form, reorderQuestions, setSelectedQuestion, isQuestionsLocked } = useFormBuilderStore();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -39,7 +39,7 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id || !form) return;
+    if (!over || active.id === over.id || !form || isQuestionsLocked) return;
 
     const oldIndex = form.questions.findIndex((q) => q.id === active.id);
     const newIndex = form.questions.findIndex((q) => q.id === over.id);
@@ -65,6 +65,15 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
           Perguntas
         </h2>
 
+        {isQuestionsLocked && (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
+            <Lock className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-amber-700 leading-tight">
+              Edicao bloqueada. Despublique o formulario para editar perguntas.
+            </p>
+          </div>
+        )}
+
         {form.questions.length === 0 ? (
           <div className="rounded-2xl bg-surface-container-lowest p-6 text-center">
             <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
@@ -89,6 +98,7 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
                     question={question}
                     formId={formId}
                     index={index}
+                    locked={isQuestionsLocked}
                   />
                 ))}
               </div>
@@ -96,7 +106,7 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
           </DndContext>
         )}
 
-        <QuestionTypePicker formId={formId} />
+        {!isQuestionsLocked && <QuestionTypePicker formId={formId} />}
       </div>
 
       {/* Canvas principal: area de preview */}

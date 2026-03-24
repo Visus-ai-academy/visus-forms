@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
+import { checkFormLocked } from "@/lib/form-lock";
 import { prisma } from "@/lib/prisma";
 import { createQuestionSchema } from "@/lib/schemas/form";
 import { getRequiredSession } from "@/lib/session";
@@ -57,6 +58,9 @@ export async function POST(
   if (!form) {
     return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
   }
+
+  const locked = await checkFormLocked(formId);
+  if (locked) return locked;
 
   try {
     const body = await request.json();

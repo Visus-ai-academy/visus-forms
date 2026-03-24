@@ -20,12 +20,14 @@ function QuestionCard({
   value,
   error,
   onChange,
+  titleColor,
 }: {
   question: Question;
   index: number;
   value: unknown;
   error?: string;
   onChange: (questionId: string, value: unknown) => void;
+  titleColor?: string;
 }) {
   if (question.type === "STATEMENT") {
     return (
@@ -47,6 +49,7 @@ function QuestionCard({
       error={error}
       index={index}
       typeLabel={QUESTION_TYPE_LABELS[question.type]}
+      titleColor={titleColor}
     >
       <QuestionField
         type={question.type}
@@ -165,6 +168,10 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
         backgroundColor: form.theme?.backgroundColor ?? "#ffffff",
         color: form.theme?.textColor ?? "#1f2937",
         fontFamily: form.theme?.fontFamily ?? "Inter",
+        backgroundImage: form.theme?.backgroundImageUrl ? `url(${form.theme.backgroundImageUrl})` : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
       }}
     >
       <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
@@ -173,7 +180,7 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
           {form.theme?.logoUrl && (
             <img src={form.theme.logoUrl} alt="Logo" className="h-10 object-contain mb-4" />
           )}
-          <h1 className="text-3xl font-bold font-heading">{form.title}</h1>
+          <h1 className="text-3xl font-bold font-heading" style={form.theme?.formTitleColor ? { color: form.theme.formTitleColor } : undefined}>{form.title}</h1>
           {form.description && (
             <p className="text-lg text-muted-foreground">{form.description}</p>
           )}
@@ -206,6 +213,7 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
                       value={answers[item.question.id]}
                       error={errors[item.question.id]}
                       onChange={handleAnswer}
+                      titleColor={form.theme?.titleColor}
                     />
                   </div>
                 </motion.div>
@@ -229,6 +237,7 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
                       value={answers[question.id]}
                       error={errors[question.id]}
                       onChange={handleAnswer}
+                      titleColor={form.theme?.titleColor}
                     />
                   </div>
                 </motion.div>

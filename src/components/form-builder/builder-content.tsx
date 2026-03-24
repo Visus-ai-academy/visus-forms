@@ -2,11 +2,13 @@
 
 import { Construction } from "lucide-react";
 
+import { ResponsesPanel } from "@/components/responses/responses-panel";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 
 import { BuilderCanvas } from "./builder-canvas";
 import { BuilderPreview } from "./builder-preview";
 import { LogicPanel } from "./logic-panel";
+import { SharePanel } from "./share-panel";
 import { ThemeEditor } from "./theme-editor";
 
 interface BuilderContentProps {
@@ -49,9 +51,9 @@ export function BuilderContent({ formId }: BuilderContentProps) {
       case "design":
         return <ThemeEditor formId={formId} />;
       case "compartilhar":
-        return <ComingSoon label="Compartilhar" />;
+        return <SharePanel formId={formId} />;
       case "respostas":
-        return <ComingSoon label="Respostas" />;
+        return <ResponsesPanel formId={formId} />;
       default:
         return <BuilderCanvas formId={formId} />;
     }

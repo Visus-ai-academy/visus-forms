@@ -14,12 +14,15 @@ interface FormBuilderState {
   previewDevice: "desktop" | "mobile";
   activeTab: BuilderTab;
   showPreview: boolean;
+  isQuestionsLocked: boolean;
 
   // Init
   setForm: (form: FormDefinition) => void;
 
   // Form meta
   updateFormMeta: (updates: Partial<Pick<FormDefinition, "title" | "description">>) => void;
+  updateTheme: (updates: Partial<NonNullable<FormDefinition["theme"]>>) => void;
+  updateSettings: (updates: Partial<NonNullable<FormDefinition["settings"]>>) => void;
 
   // Questions
   addQuestion: (question: Question) => void;
@@ -50,8 +53,16 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   previewDevice: "desktop",
   activeTab: "editor",
   showPreview: false,
+  isQuestionsLocked: false,
 
-  setForm: (form) => set({ form, isDirty: false, saveStatus: "saved", activeTab: "editor", showPreview: false }),
+  setForm: (form) => set({
+    form,
+    isDirty: false,
+    saveStatus: "saved",
+    activeTab: "editor",
+    showPreview: false,
+    isQuestionsLocked: form.status === "PUBLISHED" || (form.submissionCount ?? 0) > 0,
+  }),
 
   updateFormMeta: (updates) => {
     const { form } = get();
@@ -60,6 +71,22 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
       form: { ...form, ...updates },
       isDirty: true,
       saveStatus: "unsaved",
+    });
+  },
+
+  updateTheme: (updates) => {
+    const { form } = get();
+    if (!form) return;
+    set({
+      form: { ...form, theme: { ...form.theme!, ...updates } },
+    });
+  },
+
+  updateSettings: (updates) => {
+    const { form } = get();
+    if (!form) return;
+    set({
+      form: { ...form, settings: { ...form.settings!, ...updates } },
     });
   },
 

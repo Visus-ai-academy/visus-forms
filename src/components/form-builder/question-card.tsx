@@ -76,9 +76,10 @@ interface QuestionCardProps {
   question: Question;
   formId: string;
   index: number;
+  locked?: boolean;
 }
 
-export function QuestionCard({ question, formId, index }: QuestionCardProps) {
+export function QuestionCard({ question, formId, index, locked = false }: QuestionCardProps) {
   const {
     selectedQuestionId,
     setSelectedQuestion,
@@ -109,7 +110,8 @@ export function QuestionCard({ question, formId, index }: QuestionCardProps) {
   async function handleDelete() {
     const res = await fetch(`/api/forms/${formId}/questions/${question.id}`, { method: "DELETE" });
     if (!res.ok) {
-      toast.error("Erro ao remover pergunta");
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error || "Erro ao remover pergunta");
       return;
     }
     removeQuestion(question.id);
@@ -135,7 +137,8 @@ export function QuestionCard({ question, formId, index }: QuestionCardProps) {
     });
 
     if (!res.ok) {
-      toast.error("Erro ao duplicar pergunta");
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error || "Erro ao duplicar pergunta");
       return;
     }
 
@@ -145,20 +148,28 @@ export function QuestionCard({ question, formId, index }: QuestionCardProps) {
 
   async function handleTitleChange(title: string) {
     updateQuestion(question.id, { title });
-    await fetch(`/api/forms/${formId}/questions/${question.id}`, {
+    const res = await fetch(`/api/forms/${formId}/questions/${question.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error || "Erro ao salvar");
+    }
   }
 
   async function handleRequiredChange(required: boolean) {
     updateQuestion(question.id, { required });
-    await fetch(`/api/forms/${formId}/questions/${question.id}`, {
+    const res = await fetch(`/api/forms/${formId}/questions/${question.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ required }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error || "Erro ao salvar");
+    }
   }
 
   return (
@@ -175,9 +186,8 @@ export function QuestionCard({ question, formId, index }: QuestionCardProps) {
           {/* Header row */}
           <div className="flex items-center gap-2">
             <button
-              className="cursor-grab touch-none text-on-surface/30 hover:text-on-surface/60 transition-colors"
-              {...attributes}
-              {...listeners}
+              className={`touch-none text-on-surface/30 transition-colors ${locked ? "cursor-not-allowed opacity-30" : "cursor-grab hover:text-on-surface/60"}`}
+              {...(locked ? {} : { ...attributes, ...listeners })}
             >
               <GripVertical className="h-4 w-4" />
             </button>
@@ -193,20 +203,22 @@ export function QuestionCard({ question, formId, index }: QuestionCardProps) {
 
             <div className="flex-1" />
 
-            <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                className="rounded-lg p-1.5 text-on-surface/40 hover:text-on-surface/70 hover:bg-surface-container-low transition-colors"
-                onClick={(e) => { e.stopPropagation(); handleDuplicate(); }}
-              >
-                <Copy className="h-3.5 w-3.5" />
-              </button>
-              <button
-                className="rounded-lg p-1.5 text-on-surface/40 hover:text-destructive hover:bg-red-50 transition-colors"
-                onClick={(e) => { e.stopPropagation(); handleDelete(); }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            {!locked && (
+              <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  className="rounded-lg p-1.5 text-on-surface/40 hover:text-on-surface/70 hover:bg-surface-container-low transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleDuplicate(); }}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  className="rounded-lg p-1.5 text-on-surface/40 hover:text-destructive hover:bg-red-50 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Title */}
@@ -216,15 +228,17 @@ export function QuestionCard({ question, formId, index }: QuestionCardProps) {
             className="text-sm font-semibold bg-transparent border-0 shadow-none px-0 h-auto py-0 focus-visible:ring-0 text-on-surface placeholder:text-on-surface/30"
             placeholder="Digite sua pergunta aqui..."
             onClick={(e) => e.stopPropagation()}
+            disabled={locked}
+            readOnly={locked}
           />
 
           {/* Options editor */}
-          {isSelected && hasOptions && (
+          {isSelected && hasOptions && !locked && (
             <QuestionOptionsEditor question={question} formId={formId} />
           )}
 
           {/* Settings */}
-          {isSelected && (
+          {isSelected && !locked && (
             <div className="flex items-center gap-4 pt-3">
               <div className="flex items-center gap-2">
                 <Switch

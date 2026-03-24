@@ -11,6 +11,7 @@ interface FieldWrapperProps {
   typeLabel?: string;
   children: React.ReactNode;
   className?: string;
+  titleColor?: string;
 }
 
 export function FieldWrapper({
@@ -22,6 +23,7 @@ export function FieldWrapper({
   typeLabel,
   children,
   className,
+  titleColor,
 }: FieldWrapperProps) {
   return (
     <div className={cn("space-y-3", className)}>
@@ -38,7 +40,7 @@ export function FieldWrapper({
             </span>
           )}
         </div>
-        <h3 className="text-lg font-bold font-heading text-on-surface">
+        <h3 className="text-lg font-bold font-heading text-on-surface" style={titleColor ? { color: titleColor } : undefined}>
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </h3>

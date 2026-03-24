@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
-import { Header } from "@/components/dashboard/header";
 import { EditDeleteActions } from "@/components/shared/edit-delete-actions";
 import { CreateWorkflowModal } from "@/components/shared/create-workflow-modal";
 import { Badge } from "@/components/ui/badge";
@@ -47,9 +46,11 @@ export default async function WorkspaceDetailPage({
 
   return (
     <>
-      <Header title={workspace.name} description={workspace.description || undefined} />
-
-      <div className="p-6 space-y-6">
+      <div className="px-8 py-8 space-y-6">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">{workspace.name}</h1>
+          {workspace.description && <p className="text-sm text-muted-foreground">{workspace.description}</p>}
+        </div>
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Workflows */}
           <div className="lg:col-span-2 space-y-4">

@@ -68,9 +68,11 @@ export const formThemeSchema = z.object({
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   textColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  titleColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  formTitleColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   fontFamily: z.string().optional(),
-  logoUrl: z.string().url().nullable().optional(),
-  backgroundImageUrl: z.string().url().nullable().optional(),
+  logoUrl: z.string().min(1).nullable().optional(),
+  backgroundImageUrl: z.string().min(1).nullable().optional(),
   buttonStyle: z.enum(["rounded", "pill", "square"]).optional(),
   customCss: z.string().nullable().optional(),
 });

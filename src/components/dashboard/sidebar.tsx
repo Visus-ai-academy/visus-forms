@@ -36,18 +36,8 @@ export function Sidebar() {
   return (
     <div className="flex h-full w-[220px] flex-col bg-surface-container-low">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 pt-6 pb-8">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <FileText className="h-4 w-4 text-white" />
-        </div>
-        <div>
-          <span className="text-sm font-bold tracking-tight text-on-surface font-heading">
-            Visus-Forms
-          </span>
-          <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-            Digital Atelier
-          </p>
-        </div>
+      <div className="px-5 pt-6 pb-8 flex justify-center">
+        <img src="/LOGOTIPO_V1.png" alt="Visus" className="h-16 object-contain" />
       </div>
 
       {/* Nav principal */}

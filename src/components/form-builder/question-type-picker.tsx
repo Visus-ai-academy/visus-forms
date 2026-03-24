@@ -105,7 +105,8 @@ export function QuestionTypePicker({ formId }: QuestionTypePickerProps) {
       });
 
       if (!res.ok) {
-        toast.error("Erro ao criar pergunta");
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Erro ao criar pergunta");
         return;
       }
 

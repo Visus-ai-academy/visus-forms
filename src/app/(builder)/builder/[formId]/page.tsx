@@ -30,6 +30,7 @@ export default async function FormBuilderPage({
     include: {
       settings: true,
       theme: true,
+      _count: { select: { responses: true } },
       questions: {
         orderBy: { order: "asc" },
         include: {
@@ -46,7 +47,11 @@ export default async function FormBuilderPage({
 
   if (!form) notFound();
 
-  const formData = JSON.parse(JSON.stringify(form)) as FormDefinition & {
+  const raw = JSON.parse(JSON.stringify(form));
+  const formData = {
+    ...raw,
+    submissionCount: raw._count?.responses ?? 0,
+  } as FormDefinition & {
     workflow: { id: string; name: string; workspaceId: string };
   };
 

@@ -50,7 +50,9 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updated });
-  } catch {
-    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
+  } catch (err) {
+    console.error("Theme update error:", err);
+    const message = err instanceof Error ? err.message : "Dados invalidos";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

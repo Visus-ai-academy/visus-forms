@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 
 import { SessionProvider } from "@/components/providers/session-provider";
@@ -11,7 +11,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const manrope = Manrope({
+const interHeading = Inter({
   variable: "--font-heading",
   subsets: ["latin"],
   weight: ["700", "800"],
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${manrope.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${inter.variable} ${interHeading.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-surface text-on-surface">
         <SessionProvider>
           <TooltipProvider>

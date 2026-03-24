@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
-import { Header } from "@/components/dashboard/header";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -26,9 +25,11 @@ export default async function WorkspacesPage() {
 
   return (
     <>
-      <Header title="Workspaces" description="Gerencie seus workspaces e equipes" />
-
-      <div className="p-6 space-y-6">
+      <div className="px-8 py-8 space-y-6">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">Workspaces</h1>
+          <p className="text-sm text-muted-foreground">Gerencie seus workspaces e equipes</p>
+        </div>
         {workspaces.length === 0 ? (
           <div className="rounded-2xl bg-surface-container-lowest p-12 text-center">
             <p className="text-muted-foreground mb-4">Voce ainda nao tem nenhum workspace</p>

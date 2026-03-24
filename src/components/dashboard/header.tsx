@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export function Header({ title, description }: HeaderProps) {
   return (
-    <header className="glass-header sticky top-0 z-10 flex h-16 items-center gap-4 px-6">
+    <header className="glass-header sticky top-0 z-10 flex h-16 items-center gap-4 px-8">
       {/* Menu mobile */}
       <Sheet>
         <SheetTrigger className="lg:hidden inline-flex items-center justify-center rounded-xl p-2 text-on-surface/60 hover:bg-surface-container-lowest transition-colors">

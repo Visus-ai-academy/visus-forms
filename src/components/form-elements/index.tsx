@@ -4,6 +4,7 @@ import type { QuestionType } from "@/types/form";
 
 import { ChoiceField } from "./choice-field";
 import { DropdownField } from "./dropdown-field";
+import { PhoneField } from "./phone-field";
 import { RatingField } from "./rating-field";
 import { StatementBlock } from "./statement-block";
 import { TextField } from "./text-field";
@@ -73,11 +74,10 @@ export function QuestionField({
 
     case "PHONE":
       return (
-        <TextField
+        <PhoneField
           value={String(value ?? "")}
           onChange={onChange}
           placeholder={placeholder ?? "(00) 00000-0000"}
-          inputType="tel"
           onKeyDown={handleKeyDown}
         />
       );

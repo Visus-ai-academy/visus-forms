@@ -203,6 +203,8 @@ model FormTheme {
   primaryColor       String  @default("#6366f1")
   backgroundColor    String  @default("#ffffff")
   textColor          String  @default("#1f2937")
+  titleColor         String  @default("#1f2937")
+  formTitleColor     String  @default("#1f2937")
   fontFamily         String  @default("Inter")
   logoUrl            String?
   backgroundImageUrl String?

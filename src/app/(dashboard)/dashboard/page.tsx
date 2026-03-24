@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
-import { Header } from "@/components/dashboard/header";
 import { EditDeleteActions } from "@/components/shared/edit-delete-actions";
 import { CreateWorkspaceModal } from "@/components/shared/create-workspace-modal";
 import { authOptions } from "@/lib/auth";
@@ -28,10 +27,12 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Header title="Workspaces" description="Gerencie seus workspaces e equipes" />
-
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-end">
+      <div className="px-8 py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">Workspaces</h1>
+            <p className="text-sm text-muted-foreground">Gerencie seus workspaces e equipes</p>
+          </div>
           <CreateWorkspaceModal
             trigger={
               <span className="btn-primary-gradient px-5 py-2 text-sm font-semibold flex items-center gap-2 cursor-pointer">

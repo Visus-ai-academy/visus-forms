@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
+import { checkFormLocked } from "@/lib/form-lock";
 import { prisma } from "@/lib/prisma";
 import { updateQuestionSchema } from "@/lib/schemas/form";
 import { getRequiredSession } from "@/lib/session";
@@ -63,6 +64,9 @@ export async function PATCH(
   if (!question) {
     return NextResponse.json({ error: "Pergunta nao encontrada" }, { status: 404 });
   }
+
+  const locked = await checkFormLocked(formId);
+  if (locked) return locked;
 
   try {
     const body = await request.json();
@@ -137,6 +141,9 @@ export async function DELETE(
   if (!question) {
     return NextResponse.json({ error: "Pergunta nao encontrada" }, { status: 404 });
   }
+
+  const lockedDel = await checkFormLocked(formId);
+  if (lockedDel) return lockedDel;
 
   await prisma.question.delete({ where: { id: questionId } });
 

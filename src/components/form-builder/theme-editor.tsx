@@ -7,7 +7,9 @@ import {
   Loader2,
   Monitor,
   Paintbrush,
+  Plus,
   RotateCcw,
+  Scissors,
   Smartphone,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -22,8 +24,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { groupQuestionsIntoPages } from "@/lib/utils/page-groups";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
-import type { FormDefinition, FormSettings, FormTheme } from "@/types/form";
+import type { FormDefinition, FormSettings, FormTheme, Question } from "@/types/form";
 import { QUESTION_TYPE_LABELS } from "@/types/form";
 
 const GOOGLE_FONTS = [
@@ -41,6 +44,8 @@ const DEFAULT_THEME: Omit<FormTheme, "id" | "formId"> = {
   primaryColor: "#6366f1",
   backgroundColor: "#ffffff",
   textColor: "#1f2937",
+  titleColor: "#1f2937",
+  formTitleColor: "#1f2937",
   fontFamily: "Inter",
   logoUrl: null,
   backgroundImageUrl: null,
@@ -77,7 +82,7 @@ function ColorPickerField({ label, color, onChange }: { label: string; color: st
 interface ThemeEditorProps { formId: string }
 
 export function ThemeEditor({ formId }: ThemeEditorProps) {
-  const { form } = useFormBuilderStore();
+  const { form, updateTheme, updateSettings: updateStoreSettings, reorderQuestions, updateQuestion } = useFormBuilderStore();
   const [theme, setTheme] = useState<Omit<FormTheme, "id" | "formId">>(() => {
     if (form?.theme) { const { id: _id, formId: _fid, ...rest } = form.theme; return rest; }
     return DEFAULT_THEME;
@@ -89,6 +94,12 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
   const [hasChanges, setHasChanges] = useState(false);
   const [hasSettingsChanges, setHasSettingsChanges] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  // pageBreaks: questionId -> startsNewPage (apenas mudancas pendentes)
+  const [pendingPageBreaks, setPendingPageBreaks] = useState<Record<string, boolean>>({});
+  const hasPageBreakChanges = Object.keys(pendingPageBreaks).length > 0;
+  // ordem das perguntas (null = sem mudanca)
+  const [pendingOrder, setPendingOrder] = useState<string[] | null>(null);
+  const hasOrderChanges = pendingOrder !== null;
 
   const updateField = useCallback(<K extends keyof typeof theme>(key: K, value: (typeof theme)[K]) => {
     setTheme((prev) => ({ ...prev, [key]: value }));
@@ -100,18 +111,57 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
     setHasSettingsChanges(true);
   }, []);
 
-  const hasPendingChanges = hasChanges || hasSettingsChanges;
+  const hasPendingChanges = hasChanges || hasSettingsChanges || hasPageBreakChanges || hasOrderChanges;
 
   async function handleSave() {
     setIsSaving(true);
     try {
-      const results = await Promise.all([
-        hasChanges ? fetch(`/api/forms/${formId}/theme`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(theme) }) : null,
-        hasSettingsChanges ? fetch(`/api/forms/${formId}/settings`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) }) : null,
-      ]);
-      const failed = results.some((r) => r && !r.ok);
+      const promises: Promise<Response>[] = [];
+      if (hasChanges) promises.push(fetch(`/api/forms/${formId}/theme`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(theme) }));
+      if (hasSettingsChanges) promises.push(fetch(`/api/forms/${formId}/settings`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) }));
+
+      // Salvar page breaks
+      if (hasPageBreakChanges) {
+        for (const [questionId, startsNewPage] of Object.entries(pendingPageBreaks)) {
+          promises.push(
+            fetch(`/api/forms/${formId}/questions/${questionId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ config: { startsNewPage } }),
+            })
+          );
+        }
+      }
+
+      // Salvar reorder
+      if (hasOrderChanges && pendingOrder) {
+        promises.push(
+          fetch(`/api/forms/${formId}/questions/reorder`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ questionIds: pendingOrder }),
+          })
+        );
+      }
+
+      const results = await Promise.all(promises);
+      const failed = results.some((r) => !r.ok);
       if (failed) { toast.error("Erro ao salvar"); }
-      else { toast.success("Alteracoes salvas!"); setHasChanges(false); setHasSettingsChanges(false); }
+      else {
+        toast.success("Alteracoes salvas!");
+        if (hasChanges) updateTheme(theme);
+        if (hasSettingsChanges) updateStoreSettings(settings as Partial<NonNullable<FormDefinition["settings"]>>);
+        if (hasOrderChanges && pendingOrder) reorderQuestions(pendingOrder);
+        if (hasPageBreakChanges) {
+          for (const [questionId, startsNewPage] of Object.entries(pendingPageBreaks)) {
+            updateQuestion(questionId, { config: { ...(form?.questions.find((q) => q.id === questionId)?.config ?? {}), startsNewPage } });
+          }
+        }
+        setHasChanges(false);
+        setHasSettingsChanges(false);
+        setPendingPageBreaks({});
+        setPendingOrder(null);
+      }
     } catch { toast.error("Erro ao salvar"); }
     finally { setIsSaving(false); }
   }
@@ -143,6 +193,8 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
               <ColorPickerField label="Cor primaria" color={theme.primaryColor} onChange={(c) => updateField("primaryColor", c)} />
               <ColorPickerField label="Cor de fundo" color={theme.backgroundColor} onChange={(c) => updateField("backgroundColor", c)} />
               <ColorPickerField label="Cor do texto" color={theme.textColor} onChange={(c) => updateField("textColor", c)} />
+              <ColorPickerField label="Cor do titulo do formulario" color={theme.formTitleColor} onChange={(c) => updateField("formTitleColor", c)} />
+              <ColorPickerField label="Cor dos titulos das perguntas" color={theme.titleColor} onChange={(c) => updateField("titleColor", c)} />
             </div>
 
             {/* Botoes */}
@@ -236,7 +288,7 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
           <div className="flex justify-center p-6">
             <div className={cn("rounded-2xl shadow-ambient transition-all duration-300", previewDevice === "mobile" ? "w-[375px]" : "w-full max-w-[900px]")}>
               {form && (
-                <DesignLivePreview form={form} theme={theme} settings={settings} formId={formId} />
+                <DesignLivePreview form={form} theme={theme} settings={settings} formId={formId} pendingPageBreaks={pendingPageBreaks} onPageBreakChange={(qId, val) => setPendingPageBreaks((prev) => ({ ...prev, [qId]: val }))} pendingOrder={pendingOrder} onOrderChange={setPendingOrder} />
               )}
             </div>
           </div>
@@ -246,24 +298,173 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
   );
 }
 
+// ─── TypeForm Design View (paginas com separadores inline) ──────
+
+function TypeFormDesignView({
+  orderedQuestions,
+  theme,
+  settings,
+  bgStyle,
+  btnRadius,
+  draggedId,
+  pendingPageBreaks,
+  onPageBreakChange,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  renderQuestionCard,
+}: {
+  orderedQuestions: Question[];
+  theme: Omit<FormTheme, "id" | "formId">;
+  settings: Partial<FormSettings>;
+  bgStyle: React.CSSProperties;
+  btnRadius: string;
+  draggedId: string | null;
+  pendingPageBreaks: Record<string, boolean>;
+  onPageBreakChange: (questionId: string, value: boolean) => void;
+  onDragStart: (id: string) => void;
+  onDragOver: (e: React.DragEvent, targetId: string) => void;
+  onDragEnd: () => void;
+  renderQuestionCard: (question: Question, index: number) => React.ReactNode;
+}) {
+  // Merge saved config with pending changes for preview
+  const questionsWithPending = useMemo(() => {
+    return orderedQuestions.map((q) => {
+      if (q.id in pendingPageBreaks) {
+        return { ...q, config: { ...q.config, startsNewPage: pendingPageBreaks[q.id] } };
+      }
+      return q;
+    });
+  }, [orderedQuestions, pendingPageBreaks]);
+
+  const pages = useMemo(() => groupQuestionsIntoPages(questionsWithPending), [questionsWithPending]);
+
+  let globalIndex = 0;
+
+  return (
+    <div className="p-6">
+      {pages.map((pageQuestions, pageIndex) => (
+        <div key={pageIndex}>
+          {/* ── Separador entre paginas: clique para juntar ── */}
+          {pageIndex > 0 && (
+            <button
+              onClick={() => onPageBreakChange(pageQuestions[0].id, false)}
+              disabled={false}
+              className="w-full flex items-center gap-2 py-4 group cursor-pointer"
+            >
+              <div className="flex-1 border-t-2 border-dashed transition-colors" style={{ borderColor: `${theme.primaryColor}40` }} />
+              <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full transition-all group-hover:bg-red-50 group-hover:text-red-500 group-hover:line-through" style={{ color: theme.primaryColor, backgroundColor: `${theme.primaryColor}08` }}>
+                {false ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Scissors className="h-3 w-3" />
+                )}
+                Quebra de pagina
+              </span>
+              <div className="flex-1 border-t-2 border-dashed transition-colors" style={{ borderColor: `${theme.primaryColor}40` }} />
+            </button>
+          )}
+
+          {/* ── Card da pagina ── */}
+          <div className="rounded-2xl overflow-hidden" style={bgStyle}>
+            {/* Header */}
+            <div className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: `${theme.primaryColor}10` }}>
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: theme.primaryColor }}>
+                Pagina {pageIndex + 1} de {pages.length}
+              </span>
+              {settings.showProgressBar !== false && (
+                <div className="w-20 h-1 rounded-full" style={{ backgroundColor: `${theme.textColor}15` }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.round(((pageIndex + 1) / pages.length) * 100)}%`, backgroundColor: theme.primaryColor }} />
+                </div>
+              )}
+            </div>
+
+            {/* Logo */}
+            {theme.logoUrl && (
+              <div className="px-8 pt-4">
+                <img src={theme.logoUrl} alt="Logo" className="h-8 object-contain" />
+              </div>
+            )}
+
+            {/* Perguntas com separadores inline entre elas */}
+            <div className="px-8 py-6">
+              {pageQuestions.map((question, qIdx) => {
+                const idx = globalIndex++;
+                return (
+                  <div key={question.id}>
+                    {/* Separador inline hover para ADICIONAR quebra (entre perguntas da mesma pagina) */}
+                    {qIdx > 0 && (
+                      <button
+                        onClick={() => onPageBreakChange(question.id, true)}
+                        disabled={false}
+                        className="w-full flex items-center gap-2 py-2 my-2 group/split opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
+                      >
+                        <div className="flex-1 border-t border-dashed border-on-surface/10 group-hover/split:border-primary/40 transition-colors" />
+                        <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full text-muted-foreground group-hover/split:text-primary group-hover/split:bg-primary-fixed transition-all">
+                          {false ? (
+                            <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                          ) : (
+                            <Plus className="h-2.5 w-2.5" />
+                          )}
+                          Separar pagina
+                        </span>
+                        <div className="flex-1 border-t border-dashed border-on-surface/10 group-hover/split:border-primary/40 transition-colors" />
+                      </button>
+                    )}
+
+                    {/* Pergunta */}
+                    <div
+                      draggable
+                      onDragStart={() => onDragStart(question.id)}
+                      onDragOver={(e) => onDragOver(e, question.id)}
+                      onDragEnd={onDragEnd}
+                      className={cn(
+                        "group rounded-2xl bg-white/90 backdrop-blur-sm p-6 shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing",
+                        draggedId === question.id ? "opacity-50 scale-[0.98]" : ""
+                      )}
+                    >
+                      {renderQuestionCard(question, idx)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer */}
+            <div className="px-8 pb-6 flex justify-end">
+              <span
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white pointer-events-none"
+                style={{ background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.primaryColor}cc)`, borderRadius: btnRadius }}
+              >
+                {pageIndex === pages.length - 1 ? (<><Check className="h-3.5 w-3.5" />Enviar</>) : "Continuar →"}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Live Preview (com drag-and-drop) ───────────────────────────
 
-function DesignLivePreview({ form, theme, settings, formId }: {
+function DesignLivePreview({ form, theme, settings, formId, pendingPageBreaks, onPageBreakChange, pendingOrder, onOrderChange }: {
   form: FormDefinition;
   theme: Omit<FormTheme, "id" | "formId">;
   settings: Partial<FormSettings>;
   formId: string;
+  pendingPageBreaks: Record<string, boolean>;
+  onPageBreakChange: (questionId: string, value: boolean) => void;
+  pendingOrder: string[] | null;
+  onOrderChange: (newOrder: string[]) => void;
 }) {
   const questions = form.questions;
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [questionOrder, setQuestionOrder] = useState<string[]>(() => questions.map((q) => q.id));
+
+  const questionOrder = pendingOrder ?? questions.map((q) => q.id);
 
   const isTypeForm = settings.presentationMode !== "ALL_AT_ONCE";
-
-  useEffect(() => {
-    setQuestionOrder(questions.map((q) => q.id));
-  }, [questions]);
 
   const orderedQuestions = useMemo(() => {
     return questionOrder
@@ -278,27 +479,17 @@ function DesignLivePreview({ form, theme, settings, formId }: {
   function handleDragOver(e: React.DragEvent, targetId: string) {
     e.preventDefault();
     if (!draggedId || draggedId === targetId) return;
-    setQuestionOrder((prev) => {
-      const newOrder = [...prev];
-      const dragIdx = newOrder.indexOf(draggedId);
-      const targetIdx = newOrder.indexOf(targetId);
-      if (dragIdx === -1 || targetIdx === -1) return prev;
-      newOrder.splice(dragIdx, 1);
-      newOrder.splice(targetIdx, 0, draggedId);
-      return newOrder;
-    });
+    const newOrder = [...questionOrder];
+    const dragIdx = newOrder.indexOf(draggedId);
+    const targetIdx = newOrder.indexOf(targetId);
+    if (dragIdx === -1 || targetIdx === -1) return;
+    newOrder.splice(dragIdx, 1);
+    newOrder.splice(targetIdx, 0, draggedId);
+    onOrderChange(newOrder);
   }
 
-  async function handleDragEnd() {
-    if (!draggedId) return;
+  function handleDragEnd() {
     setDraggedId(null);
-    try {
-      await fetch(`/api/forms/${formId}/questions/reorder`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionIds: questionOrder }),
-      });
-    } catch { /* silencioso */ }
   }
 
   if (questions.length === 0) {
@@ -319,7 +510,7 @@ function DesignLivePreview({ form, theme, settings, formId }: {
           {question.type === "STATEMENT" ? (
             <QuestionField type="STATEMENT" value={null} onChange={() => {}} title={question.title} description={question.description} />
           ) : (
-            <FieldWrapper label={question.title} description={question.description} required={question.required} index={index} typeLabel={QUESTION_TYPE_LABELS[question.type]}>
+            <FieldWrapper label={question.title} description={question.description} required={question.required} index={index} typeLabel={QUESTION_TYPE_LABELS[question.type]} titleColor={theme.titleColor}>
               <QuestionField
                 type={question.type}
                 value={answers[question.id]}
@@ -335,68 +526,39 @@ function DesignLivePreview({ form, theme, settings, formId }: {
     );
   }
 
+  const bgStyle = {
+    backgroundColor: theme.backgroundColor,
+    color: theme.textColor,
+    fontFamily: theme.fontFamily,
+    backgroundImage: theme.backgroundImageUrl ? `url(${theme.backgroundImageUrl})` : undefined,
+    backgroundSize: "cover" as const,
+    backgroundPosition: "center" as const,
+  };
+
   return (
-    <div style={{
-      backgroundColor: theme.backgroundColor,
-      color: theme.textColor,
-      fontFamily: theme.fontFamily,
-      backgroundImage: theme.backgroundImageUrl ? `url(${theme.backgroundImageUrl})` : undefined,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }}>
+    <div style={{ color: theme.textColor, fontFamily: theme.fontFamily }}>
       {isTypeForm ? (
-        /* ─── Modo TypeForm: cada pergunta como pagina individual ─── */
-        <div className="space-y-6 p-6">
-          {orderedQuestions.map((question, index) => (
-            <div
-              key={question.id}
-              draggable
-              onDragStart={() => handleDragStart(question.id)}
-              onDragOver={(e) => handleDragOver(e, question.id)}
-              onDragEnd={handleDragEnd}
-              className={cn(
-                "group relative rounded-2xl transition-all duration-200 cursor-grab active:cursor-grabbing overflow-hidden",
-                draggedId === question.id ? "opacity-50 scale-[0.98]" : "hover:ring-2 hover:ring-primary/20"
-              )}
-            >
-              {/* Header da pagina */}
-              <div className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: `${theme.primaryColor}10` }}>
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: theme.primaryColor }}>
-                  Pagina {index + 1} de {orderedQuestions.length}
-                </span>
-                {settings.showProgressBar !== false && (
-                  <div className="w-20 h-1 rounded-full" style={{ backgroundColor: `${theme.textColor}15` }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round(((index + 1) / orderedQuestions.length) * 100)}%`, backgroundColor: theme.primaryColor }} />
-                  </div>
-                )}
-              </div>
-
-              {/* Conteudo da pergunta centralizado */}
-              <div className="flex items-center justify-center min-h-[250px] px-8 py-10">
-                <div className="w-full max-w-md">
-                  {renderQuestionCard(question, index)}
-                </div>
-              </div>
-
-              {/* Footer com botao */}
-              <div className="px-8 pb-6 flex justify-end">
-                <span
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white pointer-events-none"
-                  style={{ background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.primaryColor}cc)`, borderRadius: btnRadius }}
-                >
-                  {index === orderedQuestions.length - 1 ? (<><Check className="h-3.5 w-3.5" />Enviar</>) : "Continuar →"}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <TypeFormDesignView
+          orderedQuestions={orderedQuestions}
+          theme={theme}
+          settings={settings}
+          bgStyle={bgStyle}
+          btnRadius={btnRadius}
+          draggedId={draggedId}
+          pendingPageBreaks={pendingPageBreaks}
+          onPageBreakChange={onPageBreakChange}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          renderQuestionCard={renderQuestionCard}
+        />
       ) : (
         /* ─── Modo Google Forms: todas juntas ─── */
-        <div className="p-8">
+        <div className="p-8" style={bgStyle}>
           {/* Titulo */}
           <div className="space-y-2 mb-10">
             {theme.logoUrl && <img src={theme.logoUrl} alt="Logo" className="h-10 object-contain mb-4" />}
-            <h1 className="text-2xl font-bold font-heading">{form.title}</h1>
+            <h1 className="text-2xl font-bold font-heading" style={theme.formTitleColor ? { color: theme.formTitleColor } : undefined}>{form.title}</h1>
             {form.description && <p className="text-base opacity-60">{form.description}</p>}
           </div>
 
@@ -409,10 +571,9 @@ function DesignLivePreview({ form, theme, settings, formId }: {
                 onDragOver={(e) => handleDragOver(e, question.id)}
                 onDragEnd={handleDragEnd}
                 className={cn(
-                  "group rounded-2xl p-6 transition-all duration-200 cursor-grab active:cursor-grabbing",
+                  "group rounded-2xl bg-white/90 backdrop-blur-sm p-6 shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing",
                   draggedId === question.id ? "opacity-50 scale-[0.98]" : "hover:ring-2 hover:ring-primary/20"
                 )}
-                style={{ backgroundColor: `${theme.textColor}05` }}
               >
                 {renderQuestionCard(question, index)}
               </div>

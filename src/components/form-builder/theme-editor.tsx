@@ -146,8 +146,11 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
       }
 
       const results = await Promise.all(promises);
-      const failed = results.some((r) => !r.ok);
-      if (failed) { toast.error("Erro ao salvar"); }
+      const failedRes = results.find((r) => !r.ok);
+      if (failedRes) {
+        const data = await failedRes.json().catch(() => ({}));
+        toast.error(data.error || "Erro ao salvar");
+      }
       else {
         toast.success("Alterações salvas!");
         if (hasChanges) updateTheme(theme);
@@ -168,6 +171,20 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
   }
 
   function handleReset() { setTheme(DEFAULT_THEME); setHasChanges(true); }
+
+  function handleDiscard() {
+    if (form?.theme) {
+      const { id: _id, formId: _fid, ...rest } = form.theme;
+      setTheme(rest);
+    } else {
+      setTheme(DEFAULT_THEME);
+    }
+    setSettings(form?.settings ? form.settings : { presentationMode: "ONE_AT_A_TIME", showProgressBar: true });
+    setPendingPageBreaks({});
+    setPendingOrder(null);
+    setHasChanges(false);
+    setHasSettingsChanges(false);
+  }
 
   return (
     <div className="flex h-full">
@@ -255,16 +272,25 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
           </div>
         </ScrollArea>
 
-        {/* Botao salvar fixo */}
-        <div className="p-3 border-t border-surface-container-low shrink-0">
+        {/* Botoes salvar/descartar fixos */}
+        <div className="p-3 border-t border-surface-container-low shrink-0 space-y-2">
           <button
             onClick={handleSave}
             disabled={isSaving || !hasPendingChanges}
             className="btn-primary-gradient w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-            {isSaving ? "Salvando..." : "Salvar alteracoes"}
+            {isSaving ? "Salvando..." : "Salvar alterações"}
           </button>
+          {hasPendingChanges && (
+            <button
+              onClick={handleDiscard}
+              disabled={isSaving}
+              className="w-full py-2 text-xs font-semibold text-destructive/60 bg-destructive/5 hover:text-destructive hover:bg-destructive/15 rounded-xl transition-colors disabled:opacity-40"
+            >
+              Descartar alterações
+            </button>
+          )}
         </div>
       </div>
 

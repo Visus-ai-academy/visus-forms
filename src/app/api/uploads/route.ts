@@ -7,6 +7,26 @@ import { getRequiredSession } from "@/lib/session";
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 const MAX_SIZE_MB = 5;
 
+export async function GET() {
+  const { session, error } = await getRequiredSession();
+  if (error) return error;
+
+  const uploads = await (prisma.designUpload as any).findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      originalName: true,
+      storageUrl: true,
+      mimeType: true,
+      sizeBytes: true,
+      createdAt: true,
+    },
+  });
+
+  return NextResponse.json({ data: uploads });
+}
+
 export async function POST(request: Request) {
   const { session, error } = await getRequiredSession();
   if (error) return error;

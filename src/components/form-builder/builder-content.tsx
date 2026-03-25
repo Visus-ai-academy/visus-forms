@@ -32,20 +32,17 @@ export function BuilderContent({ formId }: BuilderContentProps) {
   const showPreview = useFormBuilderStore((s) => s.showPreview);
 
   function renderContent() {
+    if (showPreview) {
+      return (
+        <div className="h-full overflow-y-auto">
+          <BuilderPreview formId={formId} />
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case "editor":
-        return (
-          <div className="flex h-full">
-            <div className={showPreview ? "w-1/2 shrink-0 h-full" : "flex-1 h-full"}>
-              <BuilderCanvas formId={formId} />
-            </div>
-            {showPreview && (
-              <div className="w-1/2 shrink-0 h-full overflow-y-auto border-l border-surface-container-low">
-                <BuilderPreview formId={formId} />
-              </div>
-            )}
-          </div>
-        );
+        return <BuilderCanvas formId={formId} />;
       case "logica":
         return <LogicPanel formId={formId} />;
       case "design":

@@ -30,7 +30,7 @@ interface BuilderCanvasProps {
 }
 
 export function BuilderCanvas({ formId }: BuilderCanvasProps) {
-  const { form, reorderQuestions, setSelectedQuestion, isQuestionsLocked, isDirty, markSaved } = useFormBuilderStore();
+  const { form, reorderQuestions, setSelectedQuestion, isQuestionsLocked, lockReason, isDirty, markSaved } = useFormBuilderStore();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -112,9 +112,10 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
 
       if (promises.length > 0) {
         const results = await Promise.all(promises);
-        const failed = results.some((r) => !r.ok);
-        if (failed) {
-          toast.error("Erro ao salvar algumas alterações");
+        const failedRes = results.find((r) => !r.ok);
+        if (failedRes) {
+          const data = await failedRes.json().catch(() => ({}));
+          toast.error(data.error || "Erro ao salvar algumas alterações");
         } else {
           markSaved();
           toast.success("Alterações salvas!");
@@ -141,7 +142,9 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
               <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
                 <Lock className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-[11px] text-amber-700 leading-tight">
-                  Edição bloqueada. Despublique o formulário para editar perguntas.
+                  {lockReason === "published"
+                    ? "Edição bloqueada. Despublique o formulário para editar perguntas."
+                    : "Edição bloqueada. O formulário possui respostas."}
                 </p>
               </div>
             )}
@@ -259,8 +262,9 @@ interface IdentificationConfigProps {
 }
 
 function IdentificationConfig({ formId, onStateChange }: IdentificationConfigProps) {
-  const { form, updateSettings } = useFormBuilderStore();
+  const { form, updateSettings, isQuestionsLocked, lockReason } = useFormBuilderStore();
   const settings = form?.settings;
+  const isPublished = lockReason === "published";
 
   const [localMode, setLocalMode] = useState<string>((settings?.identificationMode as string) ?? "anonymous");
   const [localFields, setLocalFields] = useState<string[]>((settings?.identificationFields as string[]) ?? []);
@@ -318,9 +322,18 @@ function IdentificationConfig({ formId, onStateChange }: IdentificationConfigPro
         <UserCircle className="h-3.5 w-3.5" />
         Identificação do respondente
       </p>
-      <div className="grid grid-cols-2 gap-2">
+      {isPublished && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-2.5 flex items-start gap-2">
+          <Lock className="h-3 w-3 text-amber-600 mt-0.5 shrink-0" />
+          <p className="text-[10px] text-amber-700 leading-tight">
+            Despublique o formulário para alterar a identificação.
+          </p>
+        </div>
+      )}
+      <div className={`grid grid-cols-2 gap-2 ${isPublished ? "opacity-50 pointer-events-none" : ""}`}>
         <button
           onClick={() => handleModeChange("anonymous")}
+          disabled={isPublished}
           className={`rounded-lg px-3 py-2 text-xs font-medium transition-all text-center ${
             localMode === "anonymous"
               ? "bg-primary-fixed text-primary"
@@ -331,6 +344,7 @@ function IdentificationConfig({ formId, onStateChange }: IdentificationConfigPro
         </button>
         <button
           onClick={() => handleModeChange("identified")}
+          disabled={isPublished}
           className={`rounded-lg px-3 py-2 text-xs font-medium transition-all text-center ${
             localMode === "identified"
               ? "bg-primary-fixed text-primary"
@@ -341,7 +355,7 @@ function IdentificationConfig({ formId, onStateChange }: IdentificationConfigPro
         </button>
       </div>
       {localMode === "identified" && (
-        <div className="space-y-2 pl-1">
+        <div className={`space-y-2 pl-1 ${isPublished ? "opacity-50 pointer-events-none" : ""}`}>
           {(["name", "email", "cpf", "phone"] as const).map((field) => {
             const labels = { name: "Nome", email: "E-mail", cpf: "CPF", phone: "Telefone" };
             const isChecked = localFields.includes(field);
@@ -350,6 +364,7 @@ function IdentificationConfig({ formId, onStateChange }: IdentificationConfigPro
                 <Checkbox
                   id={`id-field-editor-${field}`}
                   checked={isChecked}
+                  disabled={isPublished}
                   onCheckedChange={(checked) => handleFieldToggle(field, !!checked)}
                 />
                 <label htmlFor={`id-field-editor-${field}`} className="text-xs text-on-surface/80">

@@ -15,6 +15,7 @@ interface FormBuilderState {
   activeTab: BuilderTab;
   showPreview: boolean;
   isQuestionsLocked: boolean;
+  lockReason: "published" | "has_responses" | null;
 
   // Init
   setForm: (form: FormDefinition) => void;
@@ -54,15 +55,22 @@ export const useFormBuilderStore = create<FormBuilderState>((set, get) => ({
   activeTab: "editor",
   showPreview: false,
   isQuestionsLocked: false,
+  lockReason: null,
 
-  setForm: (form) => set({
-    form,
-    isDirty: false,
-    saveStatus: "saved",
-    activeTab: "editor",
-    showPreview: false,
-    isQuestionsLocked: form.status === "PUBLISHED" || (form.submissionCount ?? 0) > 0,
-  }),
+  setForm: (form) => {
+    const isPublished = form.status === "PUBLISHED";
+    const hasResponses = (form.submissionCount ?? 0) > 0;
+    const locked = isPublished || hasResponses;
+    set({
+      form,
+      isDirty: false,
+      saveStatus: "saved",
+      activeTab: "editor",
+      showPreview: false,
+      isQuestionsLocked: locked,
+      lockReason: locked ? (isPublished ? "published" : "has_responses") : null,
+    });
+  },
 
   updateFormMeta: (updates) => {
     const { form } = get();

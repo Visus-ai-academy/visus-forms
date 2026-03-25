@@ -25,6 +25,22 @@ export async function PATCH(
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
+  const target = await prisma.workspaceMember.findFirst({
+    where: { id: memberId, workspaceId },
+  });
+
+  if (!target) {
+    return NextResponse.json({ error: "Membro nao encontrado neste workspace" }, { status: 404 });
+  }
+
+  if (target.role === "OWNER") {
+    return NextResponse.json({ error: "Nao e possivel alterar role do owner" }, { status: 403 });
+  }
+
+  if (target.role === "ADMIN" && currentMember.role === "ADMIN") {
+    return NextResponse.json({ error: "Admin nao pode alterar role de outro admin" }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const data = updateRoleSchema.parse(body);
@@ -58,9 +74,20 @@ export async function DELETE(
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
-  const target = await prisma.workspaceMember.findUnique({ where: { id: memberId } });
-  if (target?.role === "OWNER") {
+  const target = await prisma.workspaceMember.findFirst({
+    where: { id: memberId, workspaceId },
+  });
+
+  if (!target) {
+    return NextResponse.json({ error: "Membro nao encontrado neste workspace" }, { status: 404 });
+  }
+
+  if (target.role === "OWNER") {
     return NextResponse.json({ error: "Nao e possivel remover o owner" }, { status: 403 });
+  }
+
+  if (target.role === "ADMIN" && currentMember.role === "ADMIN") {
+    return NextResponse.json({ error: "Admin nao pode remover outro admin" }, { status: 403 });
   }
 
   await prisma.workspaceMember.delete({ where: { id: memberId } });

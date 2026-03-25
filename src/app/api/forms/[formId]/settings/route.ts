@@ -40,6 +40,21 @@ export async function PATCH(
 
   const { formId } = await params;
 
+  const form = await prisma.form.findFirst({
+    where: {
+      id: formId,
+      workflow: {
+        workspace: {
+          members: { some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN", "MEMBER"] } } },
+        },
+      },
+    },
+  });
+
+  if (!form) {
+    return NextResponse.json({ error: "Formulario nao encontrado" }, { status: 404 });
+  }
+
   try {
     const body = await request.json();
     const data = formSettingsSchema.parse(body);
@@ -52,7 +67,6 @@ export async function PATCH(
     return NextResponse.json({ data: updated });
   } catch (err) {
     console.error("Settings update error:", err);
-    const message = err instanceof Error ? err.message : "Dados inválidos";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: "Dados invalidos" }, { status: 400 });
   }
 }

@@ -4,6 +4,35 @@ import { prisma } from "@/lib/prisma";
 import { conditionalRuleSchema } from "@/lib/schemas/form";
 import { getRequiredSession } from "@/lib/session";
 
+async function verifyRuleOwnership(
+  ruleId: string,
+  questionId: string,
+  formId: string,
+  userId: string
+) {
+  return prisma.conditionalRule.findFirst({
+    where: {
+      id: ruleId,
+      sourceQuestionId: questionId,
+      sourceQuestion: {
+        formId,
+        form: {
+          workflow: {
+            workspace: {
+              members: {
+                some: {
+                  userId,
+                  role: { in: ["OWNER", "ADMIN", "MEMBER"] },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ formId: string; questionId: string; ruleId: string }> }
@@ -11,7 +40,12 @@ export async function PATCH(
   const { session, error } = await getRequiredSession();
   if (error) return error;
 
-  const { ruleId } = await params;
+  const { formId, questionId, ruleId } = await params;
+
+  const rule = await verifyRuleOwnership(ruleId, questionId, formId, session.user.id);
+  if (!rule) {
+    return NextResponse.json({ error: "Regra nao encontrada" }, { status: 404 });
+  }
 
   try {
     const body = await request.json();
@@ -35,7 +69,12 @@ export async function DELETE(
   const { session, error } = await getRequiredSession();
   if (error) return error;
 
-  const { ruleId } = await params;
+  const { formId, questionId, ruleId } = await params;
+
+  const rule = await verifyRuleOwnership(ruleId, questionId, formId, session.user.id);
+  if (!rule) {
+    return NextResponse.json({ error: "Regra nao encontrada" }, { status: 404 });
+  }
 
   await prisma.conditionalRule.delete({ where: { id: ruleId } });
 

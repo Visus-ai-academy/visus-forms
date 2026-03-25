@@ -5,6 +5,17 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
 
+function validateSecret() {
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32)
+  ) {
+    throw new Error(
+      "NEXTAUTH_SECRET deve ter no minimo 32 caracteres aleatorios. Gere com: openssl rand -base64 32"
+    );
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
@@ -22,6 +33,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
+        validateSecret();
+
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email e senha sao obrigatorios");
         }

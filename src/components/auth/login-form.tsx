@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -56,7 +57,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="rounded-3xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
+    <div className="rounded-2xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
       {/* Header */}
       <div className="text-center space-y-3">
         <div>
@@ -76,7 +77,7 @@ export function LoginForm() {
             id="email"
             type="email"
             placeholder="seu@email.com"
-            className="rounded-lg bg-surface-container-low border-0 h-11 focus:border-b-2 focus:border-b-primary"
+            className="rounded-lg bg-surface-container-low border-0 h-11 focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-b-2 focus:border-b-primary"
             {...register("email")}
           />
           {errors.email && (
@@ -91,7 +92,7 @@ export function LoginForm() {
             id="password"
             type="password"
             placeholder="********"
-            className="rounded-lg bg-surface-container-low border-0 h-11 focus:border-b-2 focus:border-b-primary"
+            className="rounded-lg bg-surface-container-low border-0 h-11 focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-b-2 focus:border-b-primary"
             {...register("password")}
           />
           {errors.password && (
@@ -99,14 +100,14 @@ export function LoginForm() {
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
-          className="btn-primary-gradient w-full py-3 text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+          className="btn-primary-gradient w-full py-3 text-sm font-semibold"
         >
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
           Entrar
-        </button>
+        </Button>
       </form>
 
       {/* Logo no rodapé */}

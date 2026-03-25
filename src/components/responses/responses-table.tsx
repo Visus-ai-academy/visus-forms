@@ -55,7 +55,7 @@ export function ResponsesTable({
               <p className="text-sm font-semibold text-on-surface truncate">
                 {row.original.respondentName || user?.name || "Anônimo"}
               </p>
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 {row.original.respondentEmail || user?.email || "-"}
               </p>
             </div>
@@ -118,7 +118,7 @@ export function ResponsesTable({
         header: () => (
           <div className="min-w-[100px] max-w-[200px]">
             <p className="text-xs font-semibold text-on-surface truncate">{q.title}</p>
-            <p className="text-[9px] uppercase text-muted-foreground">
+            <p className="text-[10px] uppercase text-muted-foreground">
               {QUESTION_TYPE_LABELS[q.type]}
             </p>
           </div>

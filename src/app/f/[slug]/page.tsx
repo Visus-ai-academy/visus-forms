@@ -1,6 +1,5 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -99,7 +98,23 @@ export default function PublicFormPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="w-full max-w-lg px-6 space-y-8">
+          <div className="space-y-3">
+            <div className="h-8 w-3/4 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-1/2 bg-gray-100 rounded animate-pulse" />
+          </div>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse" />
+              <div className="h-11 w-full bg-gray-100 rounded-lg animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-2/5 bg-gray-200 rounded animate-pulse" />
+              <div className="h-11 w-full bg-gray-100 rounded-lg animate-pulse" />
+            </div>
+          </div>
+          <div className="h-11 w-32 bg-gray-200 rounded-xl animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -112,6 +127,12 @@ export default function PublicFormPage() {
             Formulário indisponível
           </h1>
           <p className="text-muted-foreground">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors"
+          >
+            Tentar novamente
+          </button>
         </div>
       </div>
     );

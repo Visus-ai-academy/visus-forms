@@ -9,8 +9,11 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 
+import { CreateFormModalSidebar } from "@/components/shared/create-form-modal-sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +25,7 @@ const mainNav = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [createFormOpen, setCreateFormOpen] = useState(false);
 
   const initials = session?.user?.name
     ?.split(" ")
@@ -63,14 +67,15 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Botao criar form */}
+        {/* Botão criar form */}
         <div className="mt-6 px-1">
-          <Link href="/dashboard/workspaces">
-            <button className="btn-primary-gradient flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold">
-              <Plus className="h-4 w-4" />
-              Criar Formulario
-            </button>
-          </Link>
+          <Button
+            onClick={() => setCreateFormOpen(true)}
+            className="btn-primary-gradient flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold"
+          >
+            <Plus className="h-4 w-4" />
+            Criar Formulário
+          </Button>
         </div>
       </ScrollArea>
 
@@ -83,16 +88,21 @@ export function Sidebar() {
         </Avatar>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-on-surface truncate">
-            {session?.user?.name || "Usuario"}
+            {session?.user?.name || "Usuário"}
           </p>
         </div>
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="text-on-surface/40 hover:text-on-surface/70 transition-colors"
+          aria-label="Sair"
+          className="text-on-surface/40 hover:text-on-surface/70"
         >
           <LogOut className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
+
+      <CreateFormModalSidebar open={createFormOpen} onOpenChange={setCreateFormOpen} />
     </div>
   );
 }

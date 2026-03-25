@@ -49,7 +49,7 @@ export function QuestionOptionsEditor({
 
   return (
     <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-      <p className="text-xs font-medium text-muted-foreground">Opcoes</p>
+      <p className="text-xs font-medium text-muted-foreground">Opções</p>
 
       {question.options.map((option, index) => (
         <div key={option.id} className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export function QuestionOptionsEditor({
             value={option.label}
             onChange={(e) => handleOptionChange(index, e.target.value)}
             className="h-8 text-sm"
-            placeholder={`Opcao ${index + 1}`}
+            placeholder={`Opção ${index + 1}`}
           />
           <Button
             variant="ghost"
@@ -78,7 +78,7 @@ export function QuestionOptionsEditor({
         onClick={handleAddOption}
       >
         <Plus className="mr-1 h-3 w-3" />
-        Adicionar opcao
+        Adicionar opção
       </Button>
     </div>
   );

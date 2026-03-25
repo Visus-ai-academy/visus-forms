@@ -14,12 +14,20 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Check, FileText, Loader2, Lock, UserCircle } from "lucide-react";
+import { Check, FileText, List, Loader2, Lock, UserCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 
 import { QuestionCard } from "./question-card";
@@ -128,82 +136,115 @@ export function BuilderCanvas({ formId }: BuilderCanvasProps) {
     }
   }
 
+  const sidebarContent = (
+    <>
+      <div className="p-4 space-y-3">
+        <h2 className="text-sm font-bold font-heading text-on-surface uppercase tracking-wider px-1">
+          Perguntas
+        </h2>
+
+        {isQuestionsLocked && (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
+            <Lock className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-xs text-amber-700 leading-tight">
+              {lockReason === "published"
+                ? "Edição bloqueada. Despublique o formulário para editar perguntas."
+                : "Edição bloqueada. O formulário possui respostas."}
+            </p>
+          </div>
+        )}
+
+        {form.questions.length === 0 ? (
+          <div className="rounded-2xl bg-surface-container-lowest p-6 text-center">
+            <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground mb-3">
+              Nenhuma pergunta ainda
+            </p>
+          </div>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={form.questions.map((q) => q.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {form.questions.map((question, index) => (
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                    formId={formId}
+                    index={index}
+                    locked={isQuestionsLocked}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+
+        {!isQuestionsLocked && <QuestionTypePicker formId={formId} />}
+
+        <IdentificationConfig formId={formId} onStateChange={setIdentificationState} />
+      </div>
+    </>
+  );
+
+  const saveButton = (
+    <div className="p-3 border-t border-surface-container-high shrink-0">
+      <Button
+        onClick={handleSaveAll}
+        disabled={isSaving || !hasPendingChanges}
+        className="btn-primary-gradient w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
+      >
+        {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+        {isSaving ? "Salvando..." : "Salvar alterações"}
+      </Button>
+    </div>
+  );
+
   return (
     <div className="flex h-full">
-      {/* Lista de perguntas */}
-      <div className="w-72 shrink-0 bg-surface-container-low flex flex-col">
+      {/* Sidebar desktop */}
+      <div className="hidden md:flex w-72 shrink-0 bg-surface-container-low flex-col">
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-4 space-y-3">
-            <h2 className="text-sm font-bold font-heading text-on-surface uppercase tracking-wider px-1">
-              Perguntas
-            </h2>
-
-            {isQuestionsLocked && (
-              <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
-                <Lock className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
-                <p className="text-[11px] text-amber-700 leading-tight">
-                  {lockReason === "published"
-                    ? "Edição bloqueada. Despublique o formulário para editar perguntas."
-                    : "Edição bloqueada. O formulário possui respostas."}
-                </p>
-              </div>
-            )}
-
-            {form.questions.length === 0 ? (
-              <div className="rounded-2xl bg-surface-container-lowest p-6 text-center">
-                <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground mb-3">
-                  Nenhuma pergunta ainda
-                </p>
-              </div>
-            ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={form.questions.map((q) => q.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="space-y-2">
-                    {form.questions.map((question, index) => (
-                      <QuestionCard
-                        key={question.id}
-                        question={question}
-                        formId={formId}
-                        index={index}
-                        locked={isQuestionsLocked}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
-
-            {!isQuestionsLocked && <QuestionTypePicker formId={formId} />}
-
-            {/* Identificação do respondente */}
-            <IdentificationConfig formId={formId} onStateChange={setIdentificationState} />
-          </div>
+          {sidebarContent}
         </ScrollArea>
+        {saveButton}
+      </div>
 
-        {/* Botão salvar fixo no bottom */}
-        <div className="p-3 border-t border-surface-container-high shrink-0">
-          <button
-            onClick={handleSaveAll}
-            disabled={isSaving || !hasPendingChanges}
-            className="btn-primary-gradient w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
+      {/* Botão flutuante + Sheet mobile */}
+      <div className="md:hidden fixed bottom-4 left-4 z-20 flex flex-col gap-2">
+        <Sheet>
+          <SheetTrigger
+            render={
+              <Button
+                size="icon"
+                className="btn-primary-gradient h-12 w-12 rounded-full shadow-lg"
+                aria-label="Abrir lista de perguntas"
+              />
+            }
           >
-            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-            {isSaving ? "Salvando..." : "Salvar alterações"}
-          </button>
-        </div>
+            <List className="h-5 w-5" />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-full sm:max-w-sm flex flex-col p-0">
+            <SheetHeader className="p-4 pb-0">
+              <SheetTitle>Perguntas</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="flex-1 min-h-0">
+              {sidebarContent}
+            </ScrollArea>
+            {saveButton}
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Canvas principal: area de preview */}
       <div
-        className="flex-1 bg-surface overflow-y-auto p-8"
+        className="flex-1 bg-surface overflow-y-auto p-4 md:p-8"
         onClick={() => setSelectedQuestion(null)}
       >
         <div className="w-full max-w-xl mx-auto">
@@ -331,28 +372,32 @@ function IdentificationConfig({ formId, onStateChange }: IdentificationConfigPro
         </div>
       )}
       <div className={`grid grid-cols-2 gap-2 ${isPublished ? "opacity-50 pointer-events-none" : ""}`}>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => handleModeChange("anonymous")}
           disabled={isPublished}
-          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all text-center ${
+          className={`rounded-lg px-3 py-2 text-xs font-medium text-center h-auto ${
             localMode === "anonymous"
               ? "bg-primary-fixed text-primary"
               : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"
           }`}
         >
           Anônimo
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => handleModeChange("identified")}
           disabled={isPublished}
-          className={`rounded-lg px-3 py-2 text-xs font-medium transition-all text-center ${
+          className={`rounded-lg px-3 py-2 text-xs font-medium text-center h-auto ${
             localMode === "identified"
               ? "bg-primary-fixed text-primary"
               : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"
           }`}
         >
           Identificado
-        </button>
+        </Button>
       </div>
       {localMode === "identified" && (
         <div className={`space-y-2 pl-1 ${isPublished ? "opacity-50 pointer-events-none" : ""}`}>

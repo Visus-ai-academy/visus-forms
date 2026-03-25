@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -76,7 +77,7 @@ export function EditDeleteActions({
         return;
       }
 
-      toast.success(`${entityLabel} excluido!`);
+      toast.success(`${entityLabel} excluído!`);
       setDeleteOpen(false);
       router.refresh();
     } catch {
@@ -89,16 +90,18 @@ export function EditDeleteActions({
   return (
     <div
       className="flex gap-0.5"
-      onClick={(e) => e.preventDefault()}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
     >
       {/* Editar */}
+      <button
+        type="button"
+        className="rounded-lg p-1.5 text-on-surface/40 hover:text-primary hover:bg-primary-fixed transition-colors"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditOpen(true); }}
+        aria-label={`Editar ${entityLabel}`}
+      >
+        <Pencil className="h-3.5 w-3.5" />
+      </button>
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogTrigger
-          className="rounded-lg p-1.5 text-on-surface/40 hover:text-primary hover:bg-primary-fixed transition-colors"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Pencil className="h-3.5 w-3.5" />
-        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar {entityLabel}</DialogTitle>
@@ -131,27 +134,29 @@ export function EditDeleteActions({
               <DialogClose className="px-4 py-2 text-sm rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors">
                 Cancelar
               </DialogClose>
-              <button
+              <Button
                 onClick={handleEdit}
                 disabled={isLoading || !name.trim()}
-                className="btn-primary-gradient px-5 py-2 text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+                className="btn-primary-gradient px-5 py-2 text-sm font-semibold"
               >
                 {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Salvar
-              </button>
+              </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Excluir */}
+      <button
+        type="button"
+        className="rounded-lg p-1.5 text-on-surface/40 hover:text-destructive hover:bg-red-50 transition-colors"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteOpen(true); }}
+        aria-label={`Excluir ${entityLabel}`}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogTrigger
-          className="rounded-lg p-1.5 text-on-surface/40 hover:text-destructive hover:bg-red-50 transition-colors"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Excluir {entityLabel}</DialogTitle>
@@ -163,14 +168,15 @@ export function EditDeleteActions({
             <DialogClose className="px-4 py-2 text-sm rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors">
               Cancelar
             </DialogClose>
-            <button
+            <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
-              className="px-5 py-2 text-sm font-semibold rounded-3xl bg-destructive text-white hover:bg-destructive/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2 text-sm font-semibold rounded-xl bg-destructive text-white hover:bg-destructive/90"
             >
               {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               Excluir
-            </button>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

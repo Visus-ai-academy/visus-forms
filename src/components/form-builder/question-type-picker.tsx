@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -62,7 +63,7 @@ const categories = [
     types: ["NUMBER", "DATE", "EMAIL", "PHONE", "URL"] as QuestionType[],
   },
   {
-    name: "Midia",
+    name: "Mídia",
     types: ["RATING", "FILE_UPLOAD"] as QuestionType[],
   },
   {
@@ -87,8 +88,8 @@ export function QuestionTypePicker({ formId }: QuestionTypePickerProps) {
       const defaultOptions =
         type === "SINGLE_SELECT" || type === "MULTIPLE_CHOICE" || type === "DROPDOWN"
           ? [
-              { label: "Opcao 1", value: "opcao_1" },
-              { label: "Opcao 2", value: "opcao_2" },
+              { label: "Opção 1", value: "opcao_1" },
+              { label: "Opção 2", value: "opcao_2" },
             ]
           : undefined;
 
@@ -123,7 +124,7 @@ export function QuestionTypePicker({ formId }: QuestionTypePickerProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+        className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-input bg-background px-4 py-2 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground"
       >
         <Plus className="mr-2 h-4 w-4" />
         Adicionar pergunta
@@ -142,15 +143,16 @@ export function QuestionTypePicker({ formId }: QuestionTypePickerProps) {
                 {category.types.map((type) => {
                   const Icon = iconMap[type];
                   return (
-                    <button
+                    <Button
                       key={type}
+                      variant="outline"
                       disabled={isCreating}
                       onClick={() => handleSelect(type)}
-                      className="flex items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors hover:bg-muted disabled:opacity-50"
+                      className="flex items-center justify-start gap-3 px-3 py-2.5 text-sm h-auto"
                     >
                       <Icon className="h-4 w-4 text-muted-foreground" />
                       {QUESTION_TYPE_LABELS[type]}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>

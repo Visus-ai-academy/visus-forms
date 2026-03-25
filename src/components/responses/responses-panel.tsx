@@ -169,7 +169,7 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
                 Nenhuma resposta ainda
               </p>
               <p className="text-sm text-muted-foreground">
-                As respostas aparecerão aqui quando o formulario for respondido.
+                As respostas aparecerão aqui quando o formulário for respondido.
               </p>
             </div>
           </div>

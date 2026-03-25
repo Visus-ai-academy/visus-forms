@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
         validateSecret();
 
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email e senha sao obrigatorios");
+          throw new Error("E-mail e senha são obrigatórios");
         }
 
         const user = await prisma.user.findUnique({

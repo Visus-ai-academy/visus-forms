@@ -167,7 +167,7 @@ export function ImageGalleryModal({
                       </div>
                     )}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-[9px] text-white truncate">
+                      <p className="text-[10px] text-white truncate">
                         {upload.originalName}
                       </p>
                     </div>

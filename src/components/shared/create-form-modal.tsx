@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -29,9 +30,14 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   async function handleCreate() {
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      setNameError("Nome é obrigatório");
+      return;
+    }
+    setNameError(null);
     setIsLoading(true);
 
     try {
@@ -47,18 +53,18 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
 
       if (!res.ok) {
         const result = await res.json();
-        toast.error(result.error || "Erro ao criar formulario");
+        toast.error(result.error || "Erro ao criar formulário");
         return;
       }
 
       const { data: form } = await res.json();
-      toast.success("Formulario criado com sucesso!");
+      toast.success("Formulário criado com sucesso!");
       setOpen(false);
       setTitle("");
       setDescription("");
       router.push(`/builder/${form.id}`);
     } catch {
-      toast.error("Erro ao criar formulario");
+      toast.error("Erro ao criar formulário");
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +77,7 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo Formulario</DialogTitle>
+          <DialogTitle>Novo Formulário</DialogTitle>
           <DialogDescription>
             Crie um novo formulário para este workflow.
           </DialogDescription>
@@ -79,15 +85,16 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Titulo
+              Título
             </Label>
             <Input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => { setTitle(e.target.value); if (nameError) setNameError(null); }}
               placeholder="Ex: Pesquisa de Satisfação Q1"
-              className="rounded-lg bg-surface-container-low border-0 h-11"
+              className={`rounded-lg bg-surface-container-low border-0 h-11 ${nameError ? "ring-2 ring-destructive" : ""}`}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
+            {nameError && <p className="text-xs text-destructive">{nameError}</p>}
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -96,7 +103,7 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descreva o formulario..."
+              placeholder="Descreva o formulário..."
               className="rounded-lg bg-surface-container-low border-0"
             />
           </div>
@@ -104,18 +111,18 @@ export function CreateFormModal({ workflowId, trigger }: CreateFormModalProps) {
             <DialogClose className="px-4 py-2 text-sm rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors">
               Cancelar
             </DialogClose>
-            <button
+            <Button
               onClick={handleCreate}
               disabled={isLoading || !title.trim()}
-              className="btn-primary-gradient px-5 py-2 text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+              className="btn-primary-gradient px-5 py-2 text-sm font-semibold"
             >
               {isLoading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <Plus className="h-3.5 w-3.5" />
               )}
-              Criar Formulario
-            </button>
+              Criar Formulário
+            </Button>
           </div>
         </div>
       </DialogContent>

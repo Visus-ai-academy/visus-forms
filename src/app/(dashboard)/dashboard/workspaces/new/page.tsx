@@ -58,11 +58,11 @@ export default function NewWorkspacePage() {
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-6">
-      <div className="w-full max-w-md rounded-3xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
+      <div className="w-full max-w-md rounded-2xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
         <div>
           <h1 className="text-xl font-bold font-heading text-on-surface">Novo Workspace</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Crie um workspace para organizar seus formularios
+            Crie um workspace para organizar seus formulários
           </p>
         </div>
 

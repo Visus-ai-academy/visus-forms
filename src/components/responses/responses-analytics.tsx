@@ -228,7 +228,7 @@ export function ResponsesAnalytics({ responses, questions, stats }: ResponsesAna
                   </p>
                 ))}
                 {values.length > 5 && (
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     ...e mais {values.length - 5} respostas
                   </p>
                 )}
@@ -266,7 +266,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-2xl bg-surface-container-lowest p-4 text-center">
       <p className="text-2xl font-bold font-heading text-on-surface">{value}</p>
-      <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
+      <p className="text-xs text-muted-foreground mt-1">{label}</p>
     </div>
   );
 }

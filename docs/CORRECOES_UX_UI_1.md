@@ -10,24 +10,17 @@
 
 | Prioridade | Quantidade | Foco principal |
 |---|---|---|
-| **ALTO** | 8 | Registro, mobile, acessibilidade, consistencia, textos PT-BR |
+| **ALTO** | 7 | Mobile, acessibilidade, consistencia, textos PT-BR |
 | **MEDIO** | 14 | Confirmacoes, feedback, design system, responsividade |
 | **BAIXO** | 4 | Loading states, erro recovery, polish |
 
-**Total: 26 problemas identificados**
+**Total: 25 problemas identificados**
 
 ---
 
 ## PROBLEMAS DE ALTO IMPACTO
 
-### 1. Nao existe pagina de registro acessivel
-
-- **Arquivos:** `src/components/auth/register-form.tsx`, `src/app/(auth)/login/page.tsx`
-- **Problema:** O componente `RegisterForm` existe, mas nao ha rota `src/app/(auth)/register/page.tsx`. O `LoginForm` nao tem link "Nao tem conta? Cadastre-se".
-- **Impacto:** Novos usuarios nao conseguem se cadastrar. Fluxo de onboarding completamente quebrado.
-- **Correcao:**
-  - Criar `src/app/(auth)/register/page.tsx` renderizando o `RegisterForm`
-  - Adicionar link "Nao tem conta? Cadastre-se" no `LoginForm`
+### ~~1. Pagina de registro~~ — REMOVIDO (sistema interno, sem cadastro publico)
 
 ---
 
@@ -291,10 +284,9 @@
 
 ### Sprint 1 - Critico (ALTO)
 1. Corrigir acentuacao em todos os textos PT-BR (#7)
-2. Criar pagina de registro e link no login (#1)
-3. Adicionar `aria-label` em botoes de icone (#6)
-4. Corrigir botao "Criar Formulario" na sidebar (#2)
-5. Padronizar botoes com shadcn Button (#5)
+2. Adicionar `aria-label` em botoes de icone (#6)
+3. Corrigir botao "Criar Formulario" na sidebar (#2)
+4. Padronizar botoes com shadcn Button (#5)
 
 ### Sprint 2 - Estrutural (ALTO + MEDIO)
 6. Criar componente Breadcrumb e aplicar (#4)
@@ -321,7 +313,7 @@
 
 ## VERIFICACAO
 
-- [ ] Testar fluxo completo: registro -> login -> criar workspace -> workflow -> form -> publicar -> responder -> ver respostas
+- [ ] Testar fluxo completo: login -> criar workspace -> workflow -> form -> publicar -> responder -> ver respostas
 - [ ] Testar em mobile (< 768px) todas as paginas
 - [ ] Rodar audit de acessibilidade (axe-core ou Lighthouse)
 - [ ] Verificar todos os textos PT-BR com acentuacao correta

@@ -4,6 +4,7 @@ import { GitBranch, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 import type { ConditionalRule, Question } from "@/types/form";
 import { QUESTION_TYPE_LABELS } from "@/types/form";
@@ -96,10 +97,10 @@ export function LogicPanel({ formId }: LogicPanelProps) {
             </div>
             <div>
               <h2 className="text-lg font-bold font-heading text-on-surface">
-                Logica Condicional
+                Lógica Condicional
               </h2>
               <p className="text-sm text-muted-foreground">
-                Defina regras para controlar o fluxo do formulario.
+                Defina regras para controlar o fluxo do formulário.
               </p>
             </div>
           </div>
@@ -107,7 +108,7 @@ export function LogicPanel({ formId }: LogicPanelProps) {
           {form.questions.length === 0 ? (
             <div className="rounded-2xl bg-surface-container-lowest p-8 text-center">
               <p className="text-muted-foreground">
-                Adicione perguntas ao formulário para configurar a logica condicional.
+                Adicione perguntas ao formulário para configurar a lógica condicional.
               </p>
             </div>
           ) : (
@@ -133,10 +134,12 @@ export function LogicPanel({ formId }: LogicPanelProps) {
                       </span>
                     </div>
 
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleAddRule(question.id)}
                       disabled={loadingQuestion === question.id}
-                      className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors disabled:opacity-50"
+                      className="text-xs font-semibold text-primary hover:text-primary/80"
                     >
                       {loadingQuestion === question.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
@@ -144,13 +147,13 @@ export function LogicPanel({ formId }: LogicPanelProps) {
                         <Plus className="h-3 w-3" />
                       )}
                       Adicionar regra
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Regras */}
                   {questionRules.length === 0 ? (
                     <p className="text-xs text-muted-foreground pl-8">
-                      Nenhuma regra. A proxima pergunta sera exibida na ordem.
+                      Nenhuma regra. A próxima pergunta será exibida na ordem.
                     </p>
                   ) : (
                     <div className="space-y-2">

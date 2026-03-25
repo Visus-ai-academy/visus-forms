@@ -14,6 +14,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 
@@ -95,7 +96,7 @@ export function SharePanel({ formId }: SharePanelProps) {
           {!isPublished && (
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-sm text-amber-700">
-                O formulário precisa estar <strong>publicado</strong> para ser acessado pelo link publico.{" "}
+                O formulário precisa estar <strong>publicado</strong> para ser acessado pelo link público.{" "}
                 Clique em &ldquo;Publicar&rdquo; no canto superior direito.
               </p>
             </div>
@@ -107,7 +108,7 @@ export function SharePanel({ formId }: SharePanelProps) {
               <Link className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-bold text-on-surface">Link direto</h3>
               {isPublished && (
-                <Badge className="bg-green-100 text-green-700 border-0 text-[10px]">Ativo</Badge>
+                <Badge className="bg-success/10 text-success border-0 text-[10px]">Ativo</Badge>
               )}
             </div>
 
@@ -118,13 +119,14 @@ export function SharePanel({ formId }: SharePanelProps) {
                 className="flex-1 bg-surface-container-low border-0 text-sm font-mono"
                 onClick={(e) => (e.target as HTMLInputElement).select()}
               />
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => copyToClipboard(formUrl, "link")}
-                className="shrink-0 rounded-xl bg-primary-fixed px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-fixed/80 transition-colors flex items-center gap-1.5"
+                className="shrink-0 rounded-xl bg-primary-fixed px-4 py-2 text-xs font-semibold text-primary hover:bg-primary-fixed/80"
               >
                 {copied === "link" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied === "link" ? "Copiado" : "Copiar"}
-              </button>
+              </Button>
               {isPublished && (
                 <a
                   href={formUrl}
@@ -150,12 +152,13 @@ export function SharePanel({ formId }: SharePanelProps) {
               <div ref={qrRef} className="bg-white p-4 rounded-xl">
                 <QRCodeSVG value={formUrl} size={200} level="H" />
               </div>
-              <button
+              <Button
+                variant="link"
                 onClick={downloadQR}
-                className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="text-xs font-semibold text-primary hover:text-primary/80"
               >
                 Baixar QR Code (PNG)
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -167,7 +170,7 @@ export function SharePanel({ formId }: SharePanelProps) {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Copie o codigo abaixo e cole no HTML do seu site para incorporar o formulario.
+              Copie o código abaixo e cole no HTML do seu site para incorporar o formulário.
             </p>
 
             <div className="flex gap-3">
@@ -199,13 +202,15 @@ export function SharePanel({ formId }: SharePanelProps) {
               <pre className="bg-surface-container-low rounded-xl p-4 text-xs text-on-surface/80 font-mono overflow-x-auto whitespace-pre-wrap break-all">
                 {embedCode}
               </pre>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => copyToClipboard(embedCode, "embed")}
-                className="absolute top-2 right-2 rounded-lg bg-surface-container-lowest px-3 py-1.5 text-[10px] font-semibold text-primary hover:bg-white transition-colors flex items-center gap-1"
+                className="absolute top-2 right-2 rounded-lg bg-surface-container-lowest px-3 py-1.5 text-[10px] font-semibold text-primary hover:bg-white"
               >
                 {copied === "embed" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                 {copied === "embed" ? "Copiado" : "Copiar"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

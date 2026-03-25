@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -29,9 +30,14 @@ export function CreateWorkflowModal({ workspaceId, trigger }: CreateWorkflowModa
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   async function handleCreate() {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      setNameError("Nome é obrigatório");
+      return;
+    }
+    setNameError(null);
     setIsLoading(true);
 
     try {
@@ -68,7 +74,7 @@ export function CreateWorkflowModal({ workspaceId, trigger }: CreateWorkflowModa
         <DialogHeader>
           <DialogTitle>Novo Workflow</DialogTitle>
           <DialogDescription>
-            Crie um workflow para agrupar formularios relacionados.
+            Crie um workflow para agrupar formulários relacionados.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
@@ -78,11 +84,12 @@ export function CreateWorkflowModal({ workspaceId, trigger }: CreateWorkflowModa
             </Label>
             <Input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); if (nameError) setNameError(null); }}
               placeholder="Ex: Pesquisa de Satisfação"
-              className="rounded-lg bg-surface-container-low border-0 h-11"
+              className={`rounded-lg bg-surface-container-low border-0 h-11 ${nameError ? "ring-2 ring-destructive" : ""}`}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
+            {nameError && <p className="text-xs text-destructive">{nameError}</p>}
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -99,10 +106,10 @@ export function CreateWorkflowModal({ workspaceId, trigger }: CreateWorkflowModa
             <DialogClose className="px-4 py-2 text-sm rounded-xl bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors">
               Cancelar
             </DialogClose>
-            <button
+            <Button
               onClick={handleCreate}
               disabled={isLoading || !name.trim()}
-              className="btn-primary-gradient px-5 py-2 text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+              className="btn-primary-gradient px-5 py-2 text-sm font-semibold"
             >
               {isLoading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -110,7 +117,7 @@ export function CreateWorkflowModal({ workspaceId, trigger }: CreateWorkflowModa
                 <Plus className="h-3.5 w-3.5" />
               )}
               Criar Workflow
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -5,6 +5,14 @@ import { getServerSession } from "next-auth";
 
 import { CreateFormModal } from "@/components/shared/create-form-modal";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -41,6 +49,7 @@ export default async function WorkflowDetailPage({
   const workflow = await prisma.workflow.findFirst({
     where: { id: workflowId, workspaceId },
     include: {
+      workspace: { select: { name: true } },
       forms: {
         orderBy: { createdAt: "desc" },
         select: {
@@ -60,6 +69,21 @@ export default async function WorkflowDetailPage({
   return (
     <>
       <div className="px-8 py-8 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/dashboard" />}>Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href={`/dashboard/workspaces/${workspaceId}`} />}>{workflow.workspace.name}</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{workflow.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">{workflow.name}</h1>

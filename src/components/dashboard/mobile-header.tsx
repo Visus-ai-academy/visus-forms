@@ -3,6 +3,8 @@
 import { FileText, Menu, X } from "lucide-react";
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
+
 import { Sidebar } from "./sidebar";
 
 export function MobileHeader() {
@@ -18,12 +20,15 @@ export function MobileHeader() {
             Visus-Forms
           </span>
         </div>
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setOpen(!open)}
-          className="rounded-xl p-2 text-on-surface/60 hover:bg-surface-container-lowest transition-colors"
+          aria-label={open ? "Fechar menu" : "Abrir menu"}
+          className="rounded-xl text-on-surface/60 hover:bg-surface-container-lowest"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        </Button>
       </div>
 
       {/* Overlay + Sidebar mobile */}

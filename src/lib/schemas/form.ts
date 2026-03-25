@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const createFormSchema = z.object({
   workflowId: z.string().cuid(),
-  title: z.string().min(1, "Titulo e obrigatorio").max(255),
+  title: z.string().min(1, "Título é obrigatório").max(255),
   description: z.string().optional(),
 });
 
@@ -28,7 +28,7 @@ export const createQuestionSchema = z.object({
     "URL",
     "STATEMENT",
   ]),
-  title: z.string().min(1, "Titulo e obrigatorio"),
+  title: z.string().min(1, "Título é obrigatório"),
   description: z.string().nullable().optional(),
   placeholder: z.string().nullable().optional(),
   required: z.boolean().default(false),

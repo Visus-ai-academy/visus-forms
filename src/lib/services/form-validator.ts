@@ -32,23 +32,23 @@ function buildFieldSchema(
 ): z.ZodTypeAny {
   switch (type) {
     case "SHORT_TEXT":
-      return z.string().min(1, "Campo obrigatorio").max(
+      return z.string().min(1, "Campo obrigatório").max(
         (config.maxLength as number) || 500
       );
 
     case "LONG_TEXT":
-      return z.string().min(1, "Campo obrigatorio").max(
+      return z.string().min(1, "Campo obrigatório").max(
         (config.maxLength as number) || 5000
       );
 
     case "EMAIL":
-      return z.string().email("Email invalido");
+      return z.string().email("E-mail inválido");
 
     case "PHONE":
-      return z.string().min(8, "Telefone invalido").max(20);
+      return z.string().min(8, "Telefone inválido").max(20);
 
     case "URL":
-      return z.string().min(1, "URL obrigatoria").refine(
+      return z.string().min(1, "URL obrigatória").refine(
         (val) => {
           try {
             new globalThis.URL(val.startsWith("http") ? val : `https://${val}`);
@@ -57,14 +57,14 @@ function buildFieldSchema(
             return false;
           }
         },
-        { message: "URL invalida" }
+        { message: "URL inválida" }
       );
 
     case "NUMBER":
-      return z.coerce.number({ error: "Informe um numero valido" });
+      return z.coerce.number({ error: "Informe um número válido" });
 
     case "DATE":
-      return z.string().min(1, "Data obrigatoria");
+      return z.string().min(1, "Data obrigatória");
 
     case "RATING": {
       const max = (config.maxRating as number) || 5;
@@ -76,10 +76,10 @@ function buildFieldSchema(
 
     case "SINGLE_SELECT":
     case "DROPDOWN":
-      return z.string().min(1, "Selecione uma opcao");
+      return z.string().min(1, "Selecione uma opção");
 
     case "MULTIPLE_CHOICE":
-      return z.array(z.string()).min(1, "Selecione pelo menos uma opcao");
+      return z.array(z.string()).min(1, "Selecione pelo menos uma opção");
 
     case "FILE_UPLOAD": {
       const fileSchema = z.object({

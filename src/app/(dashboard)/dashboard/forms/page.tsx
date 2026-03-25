@@ -4,6 +4,14 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -32,13 +40,24 @@ export default async function FormsPage() {
   });
 
   const statusLabels: Record<string, { label: string; color: string }> = {
-    DRAFT: { label: "Rascunho", color: "bg-gray-100 text-gray-600" },
-    PUBLISHED: { label: "Publicado", color: "bg-green-100 text-green-700" },
-    CLOSED: { label: "Encerrado", color: "bg-red-100 text-red-600" },
+    DRAFT: { label: "Rascunho", color: "bg-muted text-muted-foreground" },
+    PUBLISHED: { label: "Publicado", color: "bg-success/10 text-success" },
+    CLOSED: { label: "Encerrado", color: "bg-destructive/10 text-destructive" },
   };
 
   return (
     <div className="px-8 py-8 space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href="/dashboard" />}>Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Formulários</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">
@@ -77,7 +96,7 @@ export default async function FormsPage() {
                     {form.workflow.workspace.name} / {form.workflow.name}
                   </p>
 
-                  <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>
                       <strong className="text-on-surface">{form._count.questions}</strong> perguntas
                     </span>

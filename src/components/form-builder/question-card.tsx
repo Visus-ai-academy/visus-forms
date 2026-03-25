@@ -21,9 +21,21 @@ import {
   Type,
   Upload,
 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
@@ -56,20 +68,20 @@ const typesWithOptions: QuestionType[] = [
 ];
 
 const typeColorMap: Record<string, string> = {
-  SHORT_TEXT: "bg-blue-100 text-blue-700",
-  LONG_TEXT: "bg-blue-100 text-blue-700",
-  MULTIPLE_CHOICE: "bg-violet-100 text-violet-700",
-  SINGLE_SELECT: "bg-violet-100 text-violet-700",
-  DROPDOWN: "bg-violet-100 text-violet-700",
-  NUMBER: "bg-emerald-100 text-emerald-700",
-  DATE: "bg-amber-100 text-amber-700",
-  RATING: "bg-amber-100 text-amber-700",
-  FILE_UPLOAD: "bg-rose-100 text-rose-700",
-  YES_NO: "bg-teal-100 text-teal-700",
-  EMAIL: "bg-cyan-100 text-cyan-700",
-  PHONE: "bg-cyan-100 text-cyan-700",
-  URL: "bg-cyan-100 text-cyan-700",
-  STATEMENT: "bg-gray-100 text-gray-700",
+  SHORT_TEXT: "bg-primary-fixed text-primary",
+  LONG_TEXT: "bg-primary-fixed text-primary",
+  MULTIPLE_CHOICE: "bg-accent text-accent-foreground",
+  SINGLE_SELECT: "bg-accent text-accent-foreground",
+  DROPDOWN: "bg-accent text-accent-foreground",
+  NUMBER: "bg-success/10 text-success",
+  DATE: "bg-surface-container-high text-on-surface",
+  RATING: "bg-surface-container-high text-on-surface",
+  FILE_UPLOAD: "bg-destructive/10 text-destructive",
+  YES_NO: "bg-primary-fixed text-primary",
+  EMAIL: "bg-primary-fixed text-primary",
+  PHONE: "bg-primary-fixed text-primary",
+  URL: "bg-primary-fixed text-primary",
+  STATEMENT: "bg-muted text-muted-foreground",
 };
 
 interface QuestionCardProps {
@@ -87,6 +99,8 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
     removeQuestion,
     duplicateQuestion,
   } = useFormBuilderStore();
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const isSelected = selectedQuestionId === question.id;
   const Icon = iconMap[question.type];
@@ -123,7 +137,7 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         type: question.type,
-        title: `${question.title} (copia)`,
+        title: `${question.title} (cópia)`,
         description: question.description,
         placeholder: question.placeholder,
         required: question.required,
@@ -178,7 +192,7 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
               {index + 1}.
             </span>
 
-            <Badge className={`text-[10px] font-semibold border-0 ${typeColorMap[question.type] || "bg-gray-100 text-gray-700"}`}>
+            <Badge className={`text-[10px] font-semibold border-0 ${typeColorMap[question.type] || "bg-muted text-muted-foreground"}`}>
               <Icon className="h-3 w-3 mr-1" />
               {QUESTION_TYPE_LABELS[question.type]}
             </Badge>
@@ -187,18 +201,24 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
 
             {!locked && (
               <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  className="rounded-lg p-1.5 text-on-surface/40 hover:text-on-surface/70 hover:bg-surface-container-low transition-colors"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded-lg text-on-surface/40 hover:text-on-surface/70 hover:bg-surface-container-low"
                   onClick={(e) => { e.stopPropagation(); handleDuplicate(); }}
+                  aria-label="Duplicar pergunta"
                 >
                   <Copy className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  className="rounded-lg p-1.5 text-on-surface/40 hover:text-destructive hover:bg-red-50 transition-colors"
-                  onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded-lg text-on-surface/40 hover:text-destructive hover:bg-red-50"
+                  onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}
+                  aria-label="Excluir pergunta"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -207,7 +227,7 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
           <Input
             value={question.title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            className="text-sm font-semibold bg-transparent border-0 shadow-none px-0 h-auto py-0 focus-visible:ring-0 text-on-surface placeholder:text-on-surface/30"
+            className="text-sm font-semibold bg-transparent border-0 shadow-none px-0 h-auto py-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:rounded-lg text-on-surface placeholder:text-on-surface/30"
             placeholder="Digite sua pergunta aqui..."
             onClick={(e) => e.stopPropagation()}
             disabled={locked}
@@ -233,6 +253,26 @@ export function QuestionCard({ question, formId, index, locked = false }: Questi
           )}
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir pergunta?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => { setShowDeleteDialog(false); handleDelete(); }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

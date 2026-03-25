@@ -35,23 +35,23 @@ function validateByType(question: Question, value: unknown): string | null {
 
   switch (question.type) {
     case "EMAIL":
-      if (strVal && !EMAIL_REGEX.test(strVal)) return "Formato de email invalido";
+      if (strVal && !EMAIL_REGEX.test(strVal)) return "Formato de e-mail inválido";
       break;
     case "PHONE": {
       const cleanPhone = strVal.replace(/\s/g, "");
-      if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) return "Formato invalido. Ex: (11) 99999-9999 ou (11) 3333-4444";
+      if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) return "Formato inválido. Ex: (11) 99999-9999 ou (11) 3333-4444";
       break;
     }
       break;
     case "URL":
-      if (strVal && !strVal.match(/^(https?:\/\/)?[\w.-]+\.\w{2,}/)) return "URL invalida";
+      if (strVal && !strVal.match(/^(https?:\/\/)?[\w.-]+\.\w{2,}/)) return "URL inválida";
       break;
     case "NUMBER":
     case "RATING":
-      if (strVal && isNaN(Number(strVal))) return "Informe um numero valido";
+      if (strVal && isNaN(Number(strVal))) return "Informe um número válido";
       break;
     case "DATE":
-      if (strVal && isNaN(Date.parse(strVal))) return "Data invalida";
+      if (strVal && isNaN(Date.parse(strVal))) return "Data inválida";
       break;
   }
 
@@ -121,7 +121,7 @@ export function TypeformRenderer({ form, onSubmit }: TypeformRendererProps) {
   if (pages.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Este formulário nao possui perguntas.</p>
+        <p className="text-muted-foreground">Este formulário não possui perguntas.</p>
       </div>
     );
   }

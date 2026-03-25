@@ -197,9 +197,9 @@ export const OPERATOR_LABELS: Record<ConditionalOperator, string> = {
   LESS_THAN: "e menor que",
   GREATER_EQUAL: "e maior ou igual a",
   LESS_EQUAL: "e menor ou igual a",
-  IS_EMPTY: "esta vazio",
+  IS_EMPTY: "está vazio",
   IS_NOT_EMPTY: "não está vazio",
-  IN_LIST: "esta na lista",
+  IN_LIST: "está na lista",
 };
 
 /**
@@ -209,5 +209,5 @@ export const ACTION_LABELS: Record<ConditionalAction, string> = {
   SKIP_TO: "Pular para",
   HIDE: "Esconder",
   SHOW: "Mostrar",
-  END_FORM: "Encerrar formulario",
+  END_FORM: "Encerrar formulário",
 };

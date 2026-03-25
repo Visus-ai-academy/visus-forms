@@ -1,6 +1,23 @@
 "use client";
 
 import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  type DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   Check,
   GripVertical,
   LayoutGrid,
@@ -10,6 +27,7 @@ import {
   Plus,
   RotateCcw,
   Scissors,
+  Settings2,
   Smartphone,
   UserCircle,
 } from "lucide-react";
@@ -19,10 +37,18 @@ import { toast } from "sonner";
 
 import { FieldWrapper, QuestionField } from "@/components/form-elements";
 import { ImageUploadField } from "@/components/shared/image-upload-field";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { groupQuestionsIntoPages } from "@/lib/utils/page-groups";
@@ -186,112 +212,139 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
     setHasSettingsChanges(false);
   }
 
+  const sidebarFields = (
+    <div className="p-5 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-xl bg-primary-fixed p-2">
+            <Paintbrush className="h-4 w-4 text-primary" />
+          </div>
+          <h2 className="text-sm font-bold font-heading text-on-surface">Aparência</h2>
+        </div>
+        <Button variant="ghost" size="icon-xs" onClick={handleReset} className="rounded-lg text-on-surface/40 hover:text-on-surface hover:bg-surface-container-low" title="Restaurar padrão" aria-label="Restaurar padrão">
+          <RotateCcw className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Cores</p>
+        <ColorPickerField label="Cor primária" color={theme.primaryColor} onChange={(c) => updateField("primaryColor", c)} />
+        <ColorPickerField label="Cor de fundo" color={theme.backgroundColor} onChange={(c) => updateField("backgroundColor", c)} />
+        <ColorPickerField label="Cor do texto" color={theme.textColor} onChange={(c) => updateField("textColor", c)} />
+        <ColorPickerField label="Cor do título do formulário" color={theme.formTitleColor} onChange={(c) => updateField("formTitleColor", c)} />
+        <ColorPickerField label="Cor dos títulos das perguntas" color={theme.titleColor} onChange={(c) => updateField("titleColor", c)} />
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Botões</p>
+        <div className="grid grid-cols-3 gap-2">
+          {BUTTON_STYLES.map((s) => (
+            <Button key={s.value} variant="ghost" size="sm" onClick={() => updateField("buttonStyle", s.value)} className={`rounded-lg px-3 py-2 text-xs font-medium h-auto ${theme.buttonStyle === s.value ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
+              {s.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <ImageUploadField label="Logo" value={theme.logoUrl} onChange={(url) => updateField("logoUrl", url)} />
+      <ImageUploadField label="Imagem de fundo" value={theme.backgroundImageUrl} onChange={(url) => updateField("backgroundImageUrl", url)} />
+
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <LayoutGrid className="h-3.5 w-3.5 text-on-surface/40" />
+          <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Comportamento</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Modo de apresentação</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="ghost" onClick={() => updateSettings("presentationMode", "ONE_AT_A_TIME")} className={`rounded-lg px-3 py-2.5 text-xs font-medium text-center h-auto flex-col items-center ${settings.presentationMode === "ONE_AT_A_TIME" ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
+              <span>Uma por vez</span>
+              <span className="text-[10px] opacity-60 mt-0.5">Estilo TypeForm</span>
+            </Button>
+            <Button variant="ghost" onClick={() => updateSettings("presentationMode", "ALL_AT_ONCE")} className={`rounded-lg px-3 py-2.5 text-xs font-medium text-center h-auto flex-col items-center ${settings.presentationMode === "ALL_AT_ONCE" ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
+              <span>Todas de uma vez</span>
+              <span className="text-[10px] opacity-60 mt-0.5">Estilo Google Forms</span>
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-semibold text-muted-foreground">Barra de progresso</Label>
+          <Switch checked={settings.showProgressBar ?? true} onCheckedChange={(val) => updateSettings("showProgressBar", val)} />
+        </div>
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-semibold text-muted-foreground">Múltiplas respostas</Label>
+          <Switch checked={settings.allowMultipleSubmissions ?? false} onCheckedChange={(val) => updateSettings("allowMultipleSubmissions", val)} />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mensagem de confirmação</Label>
+          <Input value={settings.confirmationMessage ?? ""} onChange={(e) => updateSettings("confirmationMessage", e.target.value || null)} placeholder="Obrigado por responder!" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Redirecionar após envio</Label>
+          <Input value={settings.redirectUrl ?? ""} onChange={(e) => updateSettings("redirectUrl", e.target.value || null)} placeholder="https://meu-site.com/obrigado" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const saveButtons = (
+    <div className="p-3 border-t border-surface-container-low shrink-0 space-y-2">
+      <Button
+        onClick={handleSave}
+        disabled={isSaving || !hasPendingChanges}
+        className="btn-primary-gradient w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
+      >
+        {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+        {isSaving ? "Salvando..." : "Salvar alterações"}
+      </Button>
+      {hasPendingChanges && (
+        <Button
+          variant="destructive"
+          onClick={handleDiscard}
+          disabled={isSaving}
+          className="w-full py-2 text-xs font-semibold rounded-xl"
+        >
+          Descartar alterações
+        </Button>
+      )}
+    </div>
+  );
+
   return (
     <div className="flex h-full">
-      {/* ─── Sidebar de configuracoes ─── */}
-      <div className="w-[300px] border-r border-surface-container-low bg-surface shrink-0 flex flex-col">
+      {/* Sidebar desktop */}
+      <div className="hidden md:flex w-[300px] border-r border-surface-container-low bg-surface shrink-0 flex-col">
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-5 space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="rounded-xl bg-primary-fixed p-2">
-                  <Paintbrush className="h-4 w-4 text-primary" />
-                </div>
-                <h2 className="text-sm font-bold font-heading text-on-surface">Aparencia</h2>
-              </div>
-              <button onClick={handleReset} className="rounded-lg p-1.5 text-on-surface/40 hover:text-on-surface hover:bg-surface-container-low transition-colors" title="Restaurar padrao">
-                <RotateCcw className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            {/* Cores */}
-            <div className="space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Cores</p>
-              <ColorPickerField label="Cor primaria" color={theme.primaryColor} onChange={(c) => updateField("primaryColor", c)} />
-              <ColorPickerField label="Cor de fundo" color={theme.backgroundColor} onChange={(c) => updateField("backgroundColor", c)} />
-              <ColorPickerField label="Cor do texto" color={theme.textColor} onChange={(c) => updateField("textColor", c)} />
-              <ColorPickerField label="Cor do titulo do formulario" color={theme.formTitleColor} onChange={(c) => updateField("formTitleColor", c)} />
-              <ColorPickerField label="Cor dos titulos das perguntas" color={theme.titleColor} onChange={(c) => updateField("titleColor", c)} />
-            </div>
-
-            {/* Botoes */}
-            <div className="space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Botoes</p>
-              <div className="grid grid-cols-3 gap-2">
-                {BUTTON_STYLES.map((s) => (
-                  <button key={s.value} onClick={() => updateField("buttonStyle", s.value)} className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${theme.buttonStyle === s.value ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Logo */}
-            <ImageUploadField label="Logo" value={theme.logoUrl} onChange={(url) => updateField("logoUrl", url)} />
-
-            {/* Imagem de fundo */}
-            <ImageUploadField label="Imagem de fundo" value={theme.backgroundImageUrl} onChange={(url) => updateField("backgroundImageUrl", url)} />
-
-            {/* Layout e Comportamento */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <LayoutGrid className="h-3.5 w-3.5 text-on-surface/40" />
-                <p className="text-xs font-bold uppercase tracking-wider text-on-surface/40">Comportamento</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Modo de apresentação</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => updateSettings("presentationMode", "ONE_AT_A_TIME")} className={`rounded-lg px-3 py-2.5 text-xs font-medium transition-all text-center ${settings.presentationMode === "ONE_AT_A_TIME" ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
-                    Uma por vez<span className="block text-[10px] opacity-60 mt-0.5">Estilo TypeForm</span>
-                  </button>
-                  <button onClick={() => updateSettings("presentationMode", "ALL_AT_ONCE")} className={`rounded-lg px-3 py-2.5 text-xs font-medium transition-all text-center ${settings.presentationMode === "ALL_AT_ONCE" ? "bg-primary-fixed text-primary" : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"}`}>
-                    Todas de uma vez<span className="block text-[10px] opacity-60 mt-0.5">Estilo Google Forms</span>
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold text-muted-foreground">Barra de progresso</Label>
-                <Switch checked={settings.showProgressBar ?? true} onCheckedChange={(val) => updateSettings("showProgressBar", val)} />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold text-muted-foreground">Múltiplas respostas</Label>
-                <Switch checked={settings.allowMultipleSubmissions ?? false} onCheckedChange={(val) => updateSettings("allowMultipleSubmissions", val)} />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mensagem de confirmação</Label>
-                <Input value={settings.confirmationMessage ?? ""} onChange={(e) => updateSettings("confirmationMessage", e.target.value || null)} placeholder="Obrigado por responder!" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Redirecionar apos envio</Label>
-                <Input value={settings.redirectUrl ?? ""} onChange={(e) => updateSettings("redirectUrl", e.target.value || null)} placeholder="https://meu-site.com/obrigado" className="rounded-lg bg-surface-container-lowest border-0 h-10 text-sm" />
-              </div>
-            </div>
-
-          </div>
+          {sidebarFields}
         </ScrollArea>
+        {saveButtons}
+      </div>
 
-        {/* Botoes salvar/descartar fixos */}
-        <div className="p-3 border-t border-surface-container-low shrink-0 space-y-2">
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !hasPendingChanges}
-            className="btn-primary-gradient w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
+      {/* Botão flutuante + Sheet mobile */}
+      <div className="md:hidden fixed bottom-4 right-4 z-20">
+        <Sheet>
+          <SheetTrigger
+            render={
+              <Button
+                size="icon"
+                className="btn-primary-gradient h-12 w-12 rounded-full shadow-lg"
+                aria-label="Abrir configurações de aparência"
+              />
+            }
           >
-            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-            {isSaving ? "Salvando..." : "Salvar alterações"}
-          </button>
-          {hasPendingChanges && (
-            <button
-              onClick={handleDiscard}
-              disabled={isSaving}
-              className="w-full py-2 text-xs font-semibold text-destructive/60 bg-destructive/5 hover:text-destructive hover:bg-destructive/15 rounded-xl transition-colors disabled:opacity-40"
-            >
-              Descartar alterações
-            </button>
-          )}
-        </div>
+            <Settings2 className="h-5 w-5" />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-full sm:max-w-sm flex flex-col p-0">
+            <SheetHeader className="p-4 pb-0">
+              <SheetTitle>Aparência</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="flex-1 min-h-0">
+              {sidebarFields}
+            </ScrollArea>
+            {saveButtons}
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* ─── Preview Real ─── */}
@@ -299,12 +352,12 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
         {/* Toggle device */}
         <div className="flex items-center justify-center gap-1 py-2 bg-surface border-b border-surface-container-low shrink-0">
           <div className="flex items-center gap-1 bg-surface-container-low rounded-xl p-1">
-            <button onClick={() => setPreviewDevice("desktop")} className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", previewDevice === "desktop" ? "bg-surface-container-lowest text-primary shadow-sm" : "text-on-surface/50 hover:text-on-surface/80")}>
+            <Button variant="ghost" size="sm" onClick={() => setPreviewDevice("desktop")} className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold h-auto", previewDevice === "desktop" ? "bg-surface-container-lowest text-primary shadow-sm" : "text-on-surface/50 hover:text-on-surface/80")}>
               <Monitor className="h-3.5 w-3.5" />Desktop
-            </button>
-            <button onClick={() => setPreviewDevice("mobile")} className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", previewDevice === "mobile" ? "bg-surface-container-lowest text-primary shadow-sm" : "text-on-surface/50 hover:text-on-surface/80")}>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setPreviewDevice("mobile")} className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold h-auto", previewDevice === "mobile" ? "bg-surface-container-lowest text-primary shadow-sm" : "text-on-surface/50 hover:text-on-surface/80")}>
               <Smartphone className="h-3.5 w-3.5" />Mobile
-            </button>
+            </Button>
           </div>
           <p className="text-[10px] text-muted-foreground ml-3">
             Arraste as perguntas para reposicionar
@@ -326,6 +379,49 @@ export function ThemeEditor({ formId }: ThemeEditorProps) {
   );
 }
 
+// ─── Sortable Question Item ─────────────────────────────────────
+
+function SortableQuestionItem({ id, isDragActive, children }: { id: string; isDragActive: boolean; children: React.ReactNode }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div
+        className={cn(
+          "group rounded-2xl bg-white/90 backdrop-blur-sm p-6 shadow-sm transition-all duration-200",
+          isDragging ? "scale-[0.98]" : ""
+        )}
+      >
+        <div className="flex gap-3">
+          <div
+            className="pt-1 opacity-0 group-hover:opacity-40 transition-opacity shrink-0 touch-none cursor-grab"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── TypeForm Design View (paginas com separadores inline) ──────
 
 function TypeFormDesignView({
@@ -334,28 +430,21 @@ function TypeFormDesignView({
   settings,
   bgStyle,
   btnRadius,
-  draggedId,
+  activeId,
   pendingPageBreaks,
   onPageBreakChange,
-  onDragStart,
-  onDragOver,
-  onDragEnd,
-  renderQuestionCard,
+  renderQuestionContent,
 }: {
   orderedQuestions: Question[];
   theme: Omit<FormTheme, "id" | "formId">;
   settings: Partial<FormSettings>;
   bgStyle: React.CSSProperties;
   btnRadius: string;
-  draggedId: string | null;
+  activeId: string | null;
   pendingPageBreaks: Record<string, boolean>;
   onPageBreakChange: (questionId: string, value: boolean) => void;
-  onDragStart: (id: string) => void;
-  onDragOver: (e: React.DragEvent, targetId: string) => void;
-  onDragEnd: () => void;
-  renderQuestionCard: (question: Question, index: number) => React.ReactNode;
+  renderQuestionContent: (question: Question, index: number) => React.ReactNode;
 }) {
-  // Merge saved config with pending changes for preview
   const questionsWithPending = useMemo(() => {
     return orderedQuestions.map((q) => {
       if (q.id in pendingPageBreaks) {
@@ -373,7 +462,6 @@ function TypeFormDesignView({
     <div className="p-6">
       {pages.map((pageQuestions, pageIndex) => (
         <div key={pageIndex}>
-          {/* ── Separador entre paginas: clique para juntar ── */}
           {pageIndex > 0 && (
             <button
               onClick={() => onPageBreakChange(pageQuestions[0].id, false)}
@@ -387,18 +475,16 @@ function TypeFormDesignView({
                 ) : (
                   <Scissors className="h-3 w-3" />
                 )}
-                Quebra de pagina
+                Quebra de página
               </span>
               <div className="flex-1 border-t-2 border-dashed transition-colors" style={{ borderColor: `${theme.primaryColor}40` }} />
             </button>
           )}
 
-          {/* ── Card da pagina ── */}
           <div className="rounded-2xl overflow-hidden" style={bgStyle}>
-            {/* Header */}
             <div className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: `${theme.primaryColor}10` }}>
               <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: theme.primaryColor }}>
-                Pagina {pageIndex + 1} de {pages.length}
+                Página {pageIndex + 1} de {pages.length}
               </span>
               {settings.showProgressBar !== false && (
                 <div className="w-20 h-1 rounded-full" style={{ backgroundColor: `${theme.textColor}15` }}>
@@ -407,20 +493,17 @@ function TypeFormDesignView({
               )}
             </div>
 
-            {/* Logo */}
             {theme.logoUrl && (
               <div className="px-8 pt-4">
                 <img src={theme.logoUrl} alt="Logo" className="h-8 object-contain" />
               </div>
             )}
 
-            {/* Perguntas com separadores inline entre elas */}
-            <div className="px-8 py-6">
+            <div className="px-8 py-6 space-y-2">
               {pageQuestions.map((question, qIdx) => {
                 const idx = globalIndex++;
                 return (
                   <div key={question.id}>
-                    {/* Separador inline hover para ADICIONAR quebra (entre perguntas da mesma pagina) */}
                     {qIdx > 0 && (
                       <button
                         onClick={() => onPageBreakChange(question.id, true)}
@@ -428,37 +511,26 @@ function TypeFormDesignView({
                         className="w-full flex items-center gap-2 py-2 my-2 group/split opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
                       >
                         <div className="flex-1 border-t border-dashed border-on-surface/10 group-hover/split:border-primary/40 transition-colors" />
-                        <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full text-muted-foreground group-hover/split:text-primary group-hover/split:bg-primary-fixed transition-all">
+                        <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full text-muted-foreground group-hover/split:text-primary group-hover/split:bg-primary-fixed transition-all">
                           {false ? (
                             <Loader2 className="h-2.5 w-2.5 animate-spin" />
                           ) : (
                             <Plus className="h-2.5 w-2.5" />
                           )}
-                          Separar pagina
+                          Separar página
                         </span>
                         <div className="flex-1 border-t border-dashed border-on-surface/10 group-hover/split:border-primary/40 transition-colors" />
                       </button>
                     )}
 
-                    {/* Pergunta */}
-                    <div
-                      draggable
-                      onDragStart={() => onDragStart(question.id)}
-                      onDragOver={(e) => onDragOver(e, question.id)}
-                      onDragEnd={onDragEnd}
-                      className={cn(
-                        "group rounded-2xl bg-white/90 backdrop-blur-sm p-6 shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing",
-                        draggedId === question.id ? "opacity-50 scale-[0.98]" : ""
-                      )}
-                    >
-                      {renderQuestionCard(question, idx)}
-                    </div>
+                    <SortableQuestionItem id={question.id} isDragActive={activeId === question.id}>
+                      {renderQuestionContent(question, idx)}
+                    </SortableQuestionItem>
                   </div>
                 );
               })}
             </div>
 
-            {/* Footer */}
             <div className="px-8 pb-6 flex justify-end">
               <span
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold text-white pointer-events-none"
@@ -488,7 +560,7 @@ function DesignLivePreview({ form, theme, settings, formId, pendingPageBreaks, o
 }) {
   const questions = form.questions;
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
-  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const questionOrder = pendingOrder ?? questions.map((q) => q.id);
 
@@ -502,22 +574,26 @@ function DesignLivePreview({ form, theme, settings, formId, pendingPageBreaks, o
 
   const btnRadius = theme.buttonStyle === "pill" ? "9999px" : theme.buttonStyle === "square" ? "4px" : "12px";
 
-  function handleDragStart(id: string) { setDraggedId(id); }
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
-  function handleDragOver(e: React.DragEvent, targetId: string) {
-    e.preventDefault();
-    if (!draggedId || draggedId === targetId) return;
-    const newOrder = [...questionOrder];
-    const dragIdx = newOrder.indexOf(draggedId);
-    const targetIdx = newOrder.indexOf(targetId);
-    if (dragIdx === -1 || targetIdx === -1) return;
-    newOrder.splice(dragIdx, 1);
-    newOrder.splice(targetIdx, 0, draggedId);
-    onOrderChange(newOrder);
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string);
   }
 
-  function handleDragEnd() {
-    setDraggedId(null);
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over || active.id === over.id) return;
+    const newOrder = [...questionOrder];
+    const dragIdx = newOrder.indexOf(active.id as string);
+    const targetIdx = newOrder.indexOf(over.id as string);
+    if (dragIdx === -1 || targetIdx === -1) return;
+    newOrder.splice(dragIdx, 1);
+    newOrder.splice(targetIdx, 0, active.id as string);
+    onOrderChange(newOrder);
   }
 
   if (questions.length === 0) {
@@ -528,29 +604,20 @@ function DesignLivePreview({ form, theme, settings, formId, pendingPageBreaks, o
     );
   }
 
-  function renderQuestionCard(question: typeof questions[0], index: number) {
-    return (
-      <div className="flex gap-3">
-        <div className="pt-1 opacity-0 group-hover:opacity-40 transition-opacity shrink-0">
-          <GripVertical className="h-4 w-4" />
-        </div>
-        <div className="flex-1 min-w-0">
-          {question.type === "STATEMENT" ? (
-            <QuestionField type="STATEMENT" value={null} onChange={() => {}} title={question.title} description={question.description} />
-          ) : (
-            <FieldWrapper label={question.title} description={question.description} required={question.required} index={index} typeLabel={QUESTION_TYPE_LABELS[question.type]} titleColor={theme.titleColor}>
-              <QuestionField
-                type={question.type}
-                value={answers[question.id]}
-                onChange={(v) => setAnswers((prev) => ({ ...prev, [question.id]: v }))}
-                placeholder={question.placeholder}
-                options={question.options}
-                config={question.config}
-              />
-            </FieldWrapper>
-          )}
-        </div>
-      </div>
+  function renderQuestionContent(question: typeof questions[0], index: number) {
+    return question.type === "STATEMENT" ? (
+      <QuestionField type="STATEMENT" value={null} onChange={() => {}} title={question.title} description={question.description} />
+    ) : (
+      <FieldWrapper label={question.title} description={question.description} required={question.required} index={index} typeLabel={QUESTION_TYPE_LABELS[question.type]} titleColor={theme.titleColor}>
+        <QuestionField
+          type={question.type}
+          value={answers[question.id]}
+          onChange={(v) => setAnswers((prev) => ({ ...prev, [question.id]: v }))}
+          placeholder={question.placeholder}
+          options={question.options}
+          config={question.config}
+        />
+      </FieldWrapper>
     );
   }
 
@@ -564,57 +631,51 @@ function DesignLivePreview({ form, theme, settings, formId, pendingPageBreaks, o
   };
 
   return (
-    <div style={{ color: theme.textColor, fontFamily: theme.fontFamily }}>
-      {isTypeForm ? (
-        <TypeFormDesignView
-          orderedQuestions={orderedQuestions}
-          theme={theme}
-          settings={settings}
-          bgStyle={bgStyle}
-          btnRadius={btnRadius}
-          draggedId={draggedId}
-          pendingPageBreaks={pendingPageBreaks}
-          onPageBreakChange={onPageBreakChange}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          renderQuestionCard={renderQuestionCard}
-        />
-      ) : (
-        /* ─── Modo Google Forms: todas juntas ─── */
-        <div className="p-8" style={bgStyle}>
-          {/* Titulo */}
-          <div className="space-y-2 mb-10">
-            {theme.logoUrl && <img src={theme.logoUrl} alt="Logo" className="h-10 object-contain mb-4" />}
-            <h1 className="text-2xl font-bold font-heading" style={theme.formTitleColor ? { color: theme.formTitleColor } : undefined}>{form.title}</h1>
-            {form.description && <p className="text-base opacity-60">{form.description}</p>}
-          </div>
-
-          <div className="space-y-4">
-            {orderedQuestions.map((question, index) => (
-              <div
-                key={question.id}
-                draggable
-                onDragStart={() => handleDragStart(question.id)}
-                onDragOver={(e) => handleDragOver(e, question.id)}
-                onDragEnd={handleDragEnd}
-                className={cn(
-                  "group rounded-2xl bg-white/90 backdrop-blur-sm p-6 shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing",
-                  draggedId === question.id ? "opacity-50 scale-[0.98]" : "hover:ring-2 hover:ring-primary/20"
-                )}
-              >
-                {renderQuestionCard(question, index)}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext items={questionOrder} strategy={verticalListSortingStrategy}>
+        <div style={{ color: theme.textColor, fontFamily: theme.fontFamily }}>
+          {isTypeForm ? (
+            <TypeFormDesignView
+              orderedQuestions={orderedQuestions}
+              theme={theme}
+              settings={settings}
+              bgStyle={bgStyle}
+              btnRadius={btnRadius}
+              activeId={activeId}
+              pendingPageBreaks={pendingPageBreaks}
+              onPageBreakChange={onPageBreakChange}
+              renderQuestionContent={renderQuestionContent}
+            />
+          ) : (
+            <div className="p-8" style={bgStyle}>
+              <div className="space-y-2 mb-10">
+                {theme.logoUrl && <img src={theme.logoUrl} alt="Logo" className="h-10 object-contain mb-4" />}
+                <h1 className="text-2xl font-bold font-heading" style={theme.formTitleColor ? { color: theme.formTitleColor } : undefined}>{form.title}</h1>
+                {form.description && <p className="text-base opacity-60">{form.description}</p>}
               </div>
-            ))}
-          </div>
 
-          <div className="pt-8">
-            <span className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white pointer-events-none" style={{ background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.primaryColor}cc)`, borderRadius: btnRadius }}>
-              <Check className="h-4 w-4" />Enviar respostas
-            </span>
-          </div>
+              <div className="space-y-4">
+                {orderedQuestions.map((question, index) => (
+                  <SortableQuestionItem key={question.id} id={question.id} isDragActive={activeId === question.id}>
+                    {renderQuestionContent(question, index)}
+                  </SortableQuestionItem>
+                ))}
+              </div>
+
+              <div className="pt-8">
+                <span className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white pointer-events-none" style={{ background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.primaryColor}cc)`, borderRadius: btnRadius }}>
+                  <Check className="h-4 w-4" />Enviar respostas
+                </span>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </SortableContext>
+    </DndContext>
   );
 }

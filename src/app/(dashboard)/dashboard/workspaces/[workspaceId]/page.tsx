@@ -6,6 +6,14 @@ import { getServerSession } from "next-auth";
 import { EditDeleteActions } from "@/components/shared/edit-delete-actions";
 import { CreateWorkflowModal } from "@/components/shared/create-workflow-modal";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -47,6 +55,17 @@ export default async function WorkspaceDetailPage({
   return (
     <>
       <div className="px-8 py-8 space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/dashboard" />}>Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{workspace.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div>
           <h1 className="text-xl font-bold tracking-tight text-on-surface font-heading">{workspace.name}</h1>
           {workspace.description && <p className="text-sm text-muted-foreground">{workspace.description}</p>}
@@ -100,7 +119,7 @@ export default async function WorkspaceDetailPage({
                         <div className="flex items-center gap-2 shrink-0 ml-3">
                           <Badge className="bg-surface-container-high text-muted-foreground border-0 text-[10px] font-semibold">
                             <FileText className="h-3 w-3 mr-1" />
-                            {workflow._count.forms} formularios
+                            {workflow._count.forms} formulários
                           </Badge>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                             <EditDeleteActions

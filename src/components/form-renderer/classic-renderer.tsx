@@ -140,9 +140,9 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
       if (!q.required) continue;
       const val = answers[q.id];
       if (val === undefined || val === null || val === "") {
-        newErrors[q.id] = "Este campo e obrigatorio";
+        newErrors[q.id] = "Este campo é obrigatório";
       } else if (Array.isArray(val) && val.length === 0) {
-        newErrors[q.id] = "Selecione pelo menos uma opcao";
+        newErrors[q.id] = "Selecione pelo menos uma opção";
       }
     }
 

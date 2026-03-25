@@ -19,7 +19,7 @@ const interHeading = Inter({
 
 export const metadata: Metadata = {
   title: "Visus Forms",
-  description: "Crie formularios dinamicos e personalizados",
+  description: "Crie formulários dinâmicos e personalizados",
 };
 
 export default function RootLayout({

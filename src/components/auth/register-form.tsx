@@ -9,18 +9,19 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const registerSchema = z
   .object({
     name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-    email: z.string().email("Email invalido"),
+    email: z.string().email("E-mail inválido"),
     password: z
       .string()
       .min(8, "Senha deve ter pelo menos 8 caracteres")
-      .regex(/[A-Z]/, "Senha deve ter pelo menos uma letra maiúscula")
-      .regex(/[0-9]/, "Senha deve ter pelo menos um número"),
+      .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
+      .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -73,7 +74,7 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="rounded-3xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
+    <div className="rounded-2xl bg-surface-container-lowest shadow-ambient p-8 space-y-6">
       {/* Header */}
       <div className="text-center space-y-3">
         <img src="/LOGOTIPO_V1.png" alt="Visus" className="mx-auto h-16 object-contain" />
@@ -146,14 +147,14 @@ export function RegisterForm() {
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
-          className="btn-primary-gradient w-full py-3 text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+          className="btn-primary-gradient w-full py-3 text-sm font-semibold"
         >
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
           Cadastrar
-        </button>
+        </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">

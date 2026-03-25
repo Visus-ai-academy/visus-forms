@@ -26,7 +26,7 @@ export function TextField({
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? "Digite sua resposta..."}
-        className="rounded-xl bg-surface-container-lowest border-0 min-h-[120px] text-base focus:ring-0 focus-visible:ring-0 focus-visible:border-b-2 focus-visible:border-primary transition-all"
+        className="rounded-xl bg-surface-container-lowest border-0 min-h-[120px] text-base focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-b-2 focus-visible:border-primary transition-all"
       />
     );
   }
@@ -38,7 +38,7 @@ export function TextField({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder ?? "Digite sua resposta..."}
       onKeyDown={onKeyDown}
-      className="rounded-xl bg-surface-container-lowest border-0 h-12 text-base focus:ring-0 focus-visible:ring-0 focus-visible:border-b-2 focus-visible:border-primary transition-all"
+      className="rounded-xl bg-surface-container-lowest border-0 h-12 text-base focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-b-2 focus-visible:border-primary transition-all"
     />
   );
 }

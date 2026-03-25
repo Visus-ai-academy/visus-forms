@@ -4,6 +4,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   ACTION_LABELS,
@@ -94,17 +95,20 @@ export function LogicRuleRow({
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Regra condicional
         </p>
-        <button
+        <Button
+          variant="ghost"
+          size="icon-xs"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="rounded-lg p-1.5 text-on-surface/40 hover:text-destructive hover:bg-red-50 transition-colors"
+          aria-label="Excluir regra"
+          className="rounded-lg text-on-surface/40 hover:text-destructive hover:bg-red-50"
         >
           {isDeleting ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
             <Trash2 className="h-3.5 w-3.5" />
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Se a resposta... */}
@@ -114,6 +118,7 @@ export function LogicRuleRow({
           <select
             value={rule.operator}
             onChange={(e) => handleFieldChange("operator", e.target.value)}
+            aria-label="Selecionar condição"
             className="flex-1 rounded-lg bg-surface-container-low border-0 px-3 py-2 text-sm text-on-surface"
           >
             {operators.map((op) => (
@@ -136,11 +141,12 @@ export function LogicRuleRow({
 
       {/* Entao... */}
       <div className="space-y-2">
-        <p className="text-xs text-muted-foreground">Entao...</p>
+        <p className="text-xs text-muted-foreground">Então...</p>
         <div className="flex gap-2">
           <select
             value={rule.action}
             onChange={(e) => handleFieldChange("action", e.target.value)}
+            aria-label="Selecionar ação"
             className="flex-1 rounded-lg bg-surface-container-low border-0 px-3 py-2 text-sm text-on-surface"
           >
             {actions.map((act) => (
@@ -154,6 +160,7 @@ export function LogicRuleRow({
             <select
               value={rule.targetQuestionId || ""}
               onChange={(e) => handleFieldChange("targetQuestionId", e.target.value)}
+              aria-label="Selecionar pergunta de destino"
               className="flex-1 rounded-lg bg-surface-container-low border-0 px-3 py-2 text-sm text-on-surface"
             >
               <option value="">Selecione...</option>

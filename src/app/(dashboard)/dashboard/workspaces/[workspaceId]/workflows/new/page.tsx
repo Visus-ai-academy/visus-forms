@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const schema = z.object({
-  name: z.string().min(1, "Nome e obrigatorio"),
+  name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().optional(),
 });
 
@@ -74,7 +74,7 @@ export default function NewWorkflowPage() {
         <CardHeader>
           <CardTitle>Novo Workflow</CardTitle>
           <CardDescription>
-            Crie um workflow para agrupar formularios relacionados
+            Crie um workflow para agrupar formulários relacionados
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>

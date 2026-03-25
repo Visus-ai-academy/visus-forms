@@ -20,14 +20,14 @@ export async function checkFormLocked(formId: string): Promise<NextResponse | nu
 
   if (form.status === "PUBLISHED") {
     return NextResponse.json(
-      { error: "Formulario publicado. Despublique antes de editar perguntas." },
+      { error: "Formulário publicado. Despublique antes de editar perguntas." },
       { status: 403 }
     );
   }
 
   if (form._count.responses > 0) {
     return NextResponse.json(
-      { error: "Formulario possui respostas. Nao e possivel editar perguntas." },
+      { error: "Formulário possui respostas. Não é possível editar perguntas." },
       { status: 403 }
     );
   }

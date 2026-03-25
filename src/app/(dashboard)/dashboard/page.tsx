@@ -45,7 +45,7 @@ export default async function DashboardPage() {
 
         {workspaces.length === 0 ? (
           <div className="rounded-2xl bg-surface-container-lowest p-12 text-center">
-            <p className="text-muted-foreground mb-4">Voce ainda nao tem nenhum workspace</p>
+            <p className="text-muted-foreground mb-4">Você ainda não tem nenhum workspace</p>
             <CreateWorkspaceModal
               trigger={
                 <span className="btn-primary-gradient px-6 py-2.5 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">

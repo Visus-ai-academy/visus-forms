@@ -39,7 +39,12 @@ export async function POST(request: Request) {
       where: {
         id: data.workflowId,
         workspace: {
-          members: { some: { userId: session.user.id } },
+          members: {
+            some: {
+              userId: session.user.id,
+              role: { in: ["OWNER", "ADMIN", "MEMBER"] },
+            },
+          },
         },
       },
     });

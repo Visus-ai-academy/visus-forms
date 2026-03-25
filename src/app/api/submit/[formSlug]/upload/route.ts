@@ -1,12 +1,35 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { getClientIp, RateLimiter } from "@/lib/rate-limit";
 import { StorageError, uploadToStorage } from "@/lib/services/storage";
+
+// Rate limiter: 10 uploads por minuto por IP
+const uploadRateLimiter = new RateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 1000,
+});
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ formSlug: string }> }
 ) {
+  // Rate limiting por IP
+  const clientIp = getClientIp(request);
+  const { allowed, retryAfterMs } = uploadRateLimiter.check(clientIp);
+
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Muitas requisições. Tente novamente em instantes." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+        },
+      }
+    );
+  }
+
   const { formSlug } = await params;
 
   const form = await prisma.form.findFirst({

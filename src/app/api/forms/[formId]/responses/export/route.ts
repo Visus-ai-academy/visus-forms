@@ -5,6 +5,18 @@ import Papa from "papaparse";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession } from "@/lib/session";
 
+/**
+ * Sanitiza o título do formulário para uso seguro no header Content-Disposition.
+ * Remove caracteres especiais, substitui espaços por underscore e limita a 50 chars.
+ */
+function sanitizeFilename(title: string): string {
+  const sanitized = title
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "_")
+    .slice(0, 50);
+  return sanitized || "formulario";
+}
+
 function getAnswerDisplay(
   answer: {
     textValue: string | null;
@@ -124,12 +136,14 @@ export async function GET(
     ];
   });
 
+  const safeFilename = sanitizeFilename(form.title);
+
   if (format === "csv") {
     const csv = Papa.unparse({ fields: headers, data: rows });
     return new Response(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="${form.title}-respostas.csv"`,
+        "Content-Disposition": `attachment; filename="${safeFilename}-respostas.csv"; filename*=UTF-8''${encodeURIComponent(safeFilename)}-respostas.csv`,
       },
     });
   }
@@ -168,7 +182,7 @@ export async function GET(
     return new Response(buffer, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="${form.title}-respostas.xlsx"`,
+        "Content-Disposition": `attachment; filename="${safeFilename}-respostas.xlsx"; filename*=UTF-8''${encodeURIComponent(safeFilename)}-respostas.xlsx`,
       },
     });
   }

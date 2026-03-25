@@ -23,7 +23,7 @@ export function buildDynamicSchema(
     shape[q.id] = field;
   }
 
-  return z.object(shape).passthrough();
+  return z.object(shape).strip();
 }
 
 function buildFieldSchema(

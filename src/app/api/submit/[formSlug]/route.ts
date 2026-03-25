@@ -1,8 +1,39 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { buildDynamicSchema } from "@/lib/services/form-validator";
+
+/**
+ * Schema Zod para validar o body inteiro da submissão.
+ * Campos respondent, metadata e startedAt não devem usar type assertion.
+ */
+const submitBodySchema = z.object({
+  answers: z.record(z.string(), z.unknown()),
+  startedAt: z.string().datetime().optional(),
+  metadata: z
+    .record(z.string(), z.unknown())
+    .optional()
+    .refine(
+      (val) => !val || JSON.stringify(val).length < 10000,
+      "Metadata excede o tamanho máximo permitido"
+    ),
+  respondent: z
+    .object({
+      name: z.string().max(200).trim().optional(),
+      email: z.string().email().optional(),
+      cpf: z
+        .string()
+        .regex(
+          /^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/,
+          "CPF em formato inválido"
+        )
+        .optional(),
+      phone: z.string().max(20).trim().optional(),
+    })
+    .optional(),
+});
 
 export async function GET(
   _request: Request,
@@ -100,17 +131,20 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { answers, startedAt, metadata, respondent } = body as {
-      answers: Record<string, unknown>;
-      startedAt?: string;
-      metadata?: Record<string, unknown>;
-      respondent?: {
-        name?: string;
-        email?: string;
-        cpf?: string;
-        phone?: string;
-      };
-    };
+
+    // Validar body inteiro com Zod (não confiar em type assertion)
+    const bodyValidation = submitBodySchema.safeParse(body);
+    if (!bodyValidation.success) {
+      return NextResponse.json(
+        {
+          error: "Dados inválidos",
+          details: bodyValidation.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { answers, startedAt, metadata, respondent } = bodyValidation.data;
 
     // Validacao server-side
     const schema = buildDynamicSchema(form.questions);

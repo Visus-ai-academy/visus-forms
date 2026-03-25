@@ -64,6 +64,15 @@ export async function PATCH(
   }
 
   try {
+    // Verificar que o workflow pertence ao workspace antes de atualizar
+    const workflow = await prisma.workflow.findFirst({
+      where: { id: workflowId, workspaceId },
+    });
+
+    if (!workflow) {
+      return NextResponse.json({ error: "Workflow não encontrado" }, { status: 404 });
+    }
+
     const body = await request.json();
     const data = updateWorkflowSchema.parse(body);
 
@@ -93,6 +102,15 @@ export async function DELETE(
 
   if (!isMember) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+  }
+
+  // Verificar que o workflow pertence ao workspace antes de deletar
+  const workflow = await prisma.workflow.findFirst({
+    where: { id: workflowId, workspaceId },
+  });
+
+  if (!workflow) {
+    return NextResponse.json({ error: "Workflow não encontrado" }, { status: 404 });
   }
 
   await prisma.workflow.delete({ where: { id: workflowId } });

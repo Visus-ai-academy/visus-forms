@@ -16,7 +16,11 @@ const registerSchema = z
   .object({
     name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
     email: z.string().email("Email invalido"),
-    password: z.string().min(8, "Senha deve ter pelo menos 8 caracteres"),
+    password: z
+      .string()
+      .min(8, "Senha deve ter pelo menos 8 caracteres")
+      .regex(/[A-Z]/, "Senha deve ter pelo menos uma letra maiúscula")
+      .regex(/[0-9]/, "Senha deve ter pelo menos um número"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

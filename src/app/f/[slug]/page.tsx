@@ -76,7 +76,21 @@ export default function PublicFormPage() {
     }
 
     if (form?.settings?.redirectUrl) {
-      window.location.href = form.settings.redirectUrl;
+      // Validar protocolo para prevenir Open Redirect (ex: javascript: URLs)
+      try {
+        const redirectTarget = new URL(form.settings.redirectUrl);
+        if (
+          redirectTarget.protocol === "https:" ||
+          redirectTarget.protocol === "http:"
+        ) {
+          window.location.href = form.settings.redirectUrl;
+        } else {
+          router.push(`/f/${params.slug}/success`);
+        }
+      } catch {
+        // URL inválida - redirecionar para página de sucesso padrão
+        router.push(`/f/${params.slug}/success`);
+      }
     } else {
       router.push(`/f/${params.slug}/success`);
     }

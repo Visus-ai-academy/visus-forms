@@ -52,8 +52,13 @@ export async function POST(
     const data = inviteMemberSchema.parse(body);
 
     const user = await prisma.user.findUnique({ where: { email: data.email } });
+
     if (!user) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+      // Resposta genérica para prevenir enumeração de emails
+      return NextResponse.json(
+        { message: "Convite processado com sucesso." },
+        { status: 201 }
+      );
     }
 
     const existing = await prisma.workspaceMember.findUnique({
@@ -61,19 +66,25 @@ export async function POST(
     });
 
     if (existing) {
-      return NextResponse.json({ error: "Usuario ja e membro" }, { status: 409 });
+      // Resposta genérica para não revelar que o usuário já é membro
+      return NextResponse.json(
+        { message: "Convite processado com sucesso." },
+        { status: 201 }
+      );
     }
 
-    const member = await prisma.workspaceMember.create({
+    await prisma.workspaceMember.create({
       data: {
         workspaceId,
         userId: user.id,
         role: data.role,
       },
-      include: { user: { select: { id: true, name: true, email: true, image: true } } },
     });
 
-    return NextResponse.json({ data: member }, { status: 201 });
+    return NextResponse.json(
+      { message: "Convite processado com sucesso." },
+      { status: 201 }
+    );
   } catch {
     return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }

@@ -32,7 +32,13 @@ export const createQuestionSchema = z.object({
   description: z.string().nullable().optional(),
   placeholder: z.string().nullable().optional(),
   required: z.boolean().default(false),
-  config: z.record(z.string(), z.unknown()).default({}),
+  config: z
+    .record(z.string(), z.unknown())
+    .default({})
+    .refine(
+      (val) => JSON.stringify(val).length <= 5000,
+      "Configuração excede o tamanho máximo permitido"
+    ),
   options: z
     .array(
       z.object({
@@ -66,6 +72,19 @@ export const formSettingsSchema = z.object({
   identificationFields: z.array(z.enum(["name", "email", "cpf", "phone"])).optional(),
 });
 
+/**
+ * Padrões CSS perigosos que permitem exfiltração de dados,
+ * execução de scripts ou carregamento de recursos externos.
+ */
+const DANGEROUS_CSS_PATTERNS = [
+  /url\s*\(/i,
+  /expression\s*\(/i,
+  /@import/i,
+  /javascript:/i,
+  /behavior\s*:/i,
+  /-moz-binding/i,
+];
+
 export const formThemeSchema = z.object({
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
@@ -76,7 +95,17 @@ export const formThemeSchema = z.object({
   logoUrl: z.string().min(1).nullable().optional(),
   backgroundImageUrl: z.string().min(1).nullable().optional(),
   buttonStyle: z.enum(["rounded", "pill", "square"]).optional(),
-  customCss: z.string().nullable().optional(),
+  customCss: z
+    .string()
+    .nullable()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        return !DANGEROUS_CSS_PATTERNS.some((pattern) => pattern.test(val));
+      },
+      "CSS contém padrões não permitidos por segurança"
+    ),
 });
 
 export const conditionalRuleSchema = z.object({

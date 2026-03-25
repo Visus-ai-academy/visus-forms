@@ -9,7 +9,6 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  engine: "js",
   datasource: {
     url: env("DIRECT_URL"),
   },

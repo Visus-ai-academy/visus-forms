@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Circle,
   Copy,
+  CreditCard,
   GripVertical,
   Hash,
   Link,
@@ -61,6 +62,7 @@ const iconMap: Record<QuestionType, React.ComponentType<{ className?: string }>>
   URL: Link,
   STATEMENT: MessageSquare,
   ADDRESS: MapPin,
+  CPF: CreditCard,
 };
 
 const typesWithOptions: QuestionType[] = [

@@ -85,6 +85,8 @@ export const StatementConfig = z.object({
 
 export const AddressConfig = z.object({});
 
+export const CpfConfig = z.object({});
+
 export const QuestionConfigSchema: Record<string, z.ZodSchema> = {
   SHORT_TEXT: ShortTextConfig,
   LONG_TEXT: LongTextConfig,
@@ -101,4 +103,5 @@ export const QuestionConfigSchema: Record<string, z.ZodSchema> = {
   URL: UrlConfig,
   STATEMENT: StatementConfig,
   ADDRESS: AddressConfig,
+  CPF: CpfConfig,
 };

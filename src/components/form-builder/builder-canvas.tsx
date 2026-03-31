@@ -401,8 +401,8 @@ function IdentificationConfig({ formId, onStateChange }: IdentificationConfigPro
       </div>
       {localMode === "identified" && (
         <div className={`space-y-2 pl-1 ${isPublished ? "opacity-50 pointer-events-none" : ""}`}>
-          {(["name", "email", "cpf", "phone"] as const).map((field) => {
-            const labels = { name: "Nome", email: "E-mail", cpf: "CPF", phone: "Telefone" };
+          {(["name", "email", "cpf", "phone", "birthDate", "gender"] as const).map((field) => {
+            const labels = { name: "Nome", email: "E-mail", cpf: "CPF", phone: "Telefone", birthDate: "Data de nascimento", gender: "Sexo" };
             const isChecked = localFields.includes(field);
             return (
               <div key={field} className="flex items-center gap-2">

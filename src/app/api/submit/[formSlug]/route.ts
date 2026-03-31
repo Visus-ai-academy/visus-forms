@@ -32,6 +32,8 @@ const submitBodySchema = z.object({
         )
         .optional(),
       phone: z.string().max(20).trim().optional(),
+      birthDate: z.string().optional(),
+      gender: z.enum(["masculino", "feminino", "outro"]).optional(),
     })
     .optional(),
 });
@@ -178,6 +180,8 @@ export async function POST(
       respondentEmail: respondent?.email || null,
       respondentCpf: respondent?.cpf || null,
       respondentPhone: respondent?.phone || null,
+      respondentBirthDate: respondent?.birthDate || null,
+      respondentGender: respondent?.gender || null,
       answers: {
         create: form.questions
           .filter((q) => validated.data[q.id] !== undefined && validated.data[q.id] !== null && validated.data[q.id] !== "")

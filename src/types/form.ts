@@ -72,13 +72,15 @@ export interface FormSettings {
   identificationFields: string[];
 }
 
-export type IdentificationField = "name" | "email" | "cpf" | "phone";
+export type IdentificationField = "name" | "email" | "cpf" | "phone" | "birthDate" | "gender";
 
 export const IDENTIFICATION_FIELD_LABELS: Record<IdentificationField, string> = {
   name: "Nome",
   email: "E-mail",
   cpf: "CPF",
   phone: "Telefone",
+  birthDate: "Data de nascimento",
+  gender: "Sexo",
 };
 
 export interface FormTheme {
@@ -129,6 +131,7 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   URL: "URL",
   STATEMENT: "Informativo",
   ADDRESS: "Endereço",
+  CPF: "CPF",
 };
 
 export interface FormWebhook {
@@ -162,4 +165,5 @@ export const QUESTION_TYPE_ICONS: Record<QuestionType, string> = {
   URL: "Link",
   STATEMENT: "MessageSquare",
   ADDRESS: "MapPin",
+  CPF: "CreditCard",
 };

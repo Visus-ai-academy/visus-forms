@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { FieldWrapper, QuestionField } from "@/components/form-elements";
 import { type AnswerValue, getVisibleQuestions } from "@/lib/services/conditional-engine";
+import { validateQuestion } from "@/lib/utils/question-validation";
 import type { FormDefinition, Question, QuestionLayout } from "@/types/form";
 import { QUESTION_TYPE_LABELS } from "@/types/form";
 
@@ -137,13 +138,8 @@ export function ClassicRenderer({ form, onSubmit }: ClassicRendererProps) {
     const newErrors: Record<string, string> = {};
 
     for (const q of visibleQuestions) {
-      if (!q.required) continue;
-      const val = answers[q.id];
-      if (val === undefined || val === null || val === "") {
-        newErrors[q.id] = "Este campo é obrigatório";
-      } else if (Array.isArray(val) && val.length === 0) {
-        newErrors[q.id] = "Selecione pelo menos uma opção";
-      }
+      const error = validateQuestion(q, answers[q.id]);
+      if (error) newErrors[q.id] = error;
     }
 
     setErrors(newErrors);

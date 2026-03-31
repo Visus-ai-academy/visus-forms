@@ -7,6 +7,8 @@ interface Respondent {
   email?: string;
   cpf?: string;
   phone?: string;
+  birthDate?: string;
+  gender?: string;
 }
 
 interface DispatchParams {
@@ -94,6 +96,8 @@ export async function dispatchWebhooks(params: DispatchParams): Promise<void> {
       if (respondent?.email) respondentData.email = respondent.email;
       if (respondent?.cpf) respondentData.cpf = respondent.cpf;
       if (respondent?.phone) respondentData.telefone = respondent.phone;
+      if (respondent?.birthDate) respondentData.data_nascimento = respondent.birthDate;
+      if (respondent?.gender) respondentData.sexo = respondent.gender;
 
       const payload = {
         event: "form.submitted",

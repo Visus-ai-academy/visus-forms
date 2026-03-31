@@ -7,55 +7,13 @@ import { useCallback, useMemo, useState } from "react";
 import { FieldWrapper, QuestionField } from "@/components/form-elements";
 import { Progress } from "@/components/ui/progress";
 import { groupQuestionsIntoPages } from "@/lib/utils/page-groups";
-import type { FormDefinition, Question } from "@/types/form";
+import { validateQuestion } from "@/lib/utils/question-validation";
+import type { FormDefinition } from "@/types/form";
 import { QUESTION_TYPE_LABELS } from "@/types/form";
 
 interface TypeformRendererProps {
   form: FormDefinition;
   onSubmit: (answers: Record<string, unknown>) => Promise<void>;
-}
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// Aceita: (XX) XXXX-XXXX, (XX) XXXXX-XXXX, ou somente digitos 10-11
-const PHONE_REGEX = /^(\(\d{2}\)\s?\d{4,5}-\d{4}|\d{10,11})$/;
-
-function validateByType(question: Question, value: unknown): string | null {
-  const strVal = typeof value === "string" ? value.trim() : "";
-  const isArray = Array.isArray(value);
-
-  if (question.required) {
-    if (isArray) {
-      if (value.length === 0) return "Selecione pelo menos uma opção";
-    } else if (value === undefined || value === null || strVal === "") {
-      return "Este campo é obrigatório";
-    }
-  }
-
-  if (!isArray && !strVal && !question.required) return null;
-
-  switch (question.type) {
-    case "EMAIL":
-      if (strVal && !EMAIL_REGEX.test(strVal)) return "Formato de e-mail inválido";
-      break;
-    case "PHONE": {
-      const cleanPhone = strVal.replace(/\s/g, "");
-      if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) return "Formato inválido. Ex: (11) 99999-9999 ou (11) 3333-4444";
-      break;
-    }
-      break;
-    case "URL":
-      if (strVal && !strVal.match(/^(https?:\/\/)?[\w.-]+\.\w{2,}/)) return "URL inválida";
-      break;
-    case "NUMBER":
-    case "RATING":
-      if (strVal && isNaN(Number(strVal))) return "Informe um número válido";
-      break;
-    case "DATE":
-      if (strVal && isNaN(Date.parse(strVal))) return "Data inválida";
-      break;
-  }
-
-  return null;
 }
 
 export function TypeformRenderer({ form, onSubmit }: TypeformRendererProps) {
@@ -85,7 +43,7 @@ export function TypeformRenderer({ form, onSubmit }: TypeformRendererProps) {
   const validateCurrentPage = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
     for (const q of currentPage) {
-      const error = validateByType(q, answers[q.id]);
+      const error = validateQuestion(q, answers[q.id]);
       if (error) newErrors[q.id] = error;
     }
     setErrors(newErrors);

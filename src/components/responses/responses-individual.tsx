@@ -45,6 +45,8 @@ function getRespondentInfo(
     email: () => response.respondentEmail || response.user?.email || null,
     cpf: () => response.respondentCpf || null,
     phone: () => response.respondentPhone || null,
+    birthDate: () => response.respondentBirthDate || null,
+    gender: () => response.respondentGender || null,
   };
   const fields =
     identificationFields.length > 0 ? identificationFields : ["name", "email"];
@@ -69,6 +71,8 @@ function buildAnonymousMap(
       r.respondentEmail ||
       r.respondentCpf ||
       r.respondentPhone ||
+      r.respondentBirthDate ||
+      r.respondentGender ||
       r.user?.name ||
       r.user?.email;
     if (!hasIdentity) {
@@ -110,6 +114,8 @@ export function ResponsesIndividual({
         r.respondentEmail,
         r.respondentCpf,
         r.respondentPhone,
+        r.respondentBirthDate,
+        r.respondentGender,
         r.user?.name,
         r.user?.email,
       ]

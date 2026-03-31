@@ -43,6 +43,8 @@ export interface ResponseData {
   respondentEmail: string | null;
   respondentCpf: string | null;
   respondentPhone: string | null;
+  respondentBirthDate: string | null;
+  respondentGender: string | null;
   answers: AnswerData[];
   user: {
     id: string;

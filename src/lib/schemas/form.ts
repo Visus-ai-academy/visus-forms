@@ -28,6 +28,7 @@ export const createQuestionSchema = z.object({
     "URL",
     "STATEMENT",
     "ADDRESS",
+    "CPF",
   ]),
   title: z.string().min(1, "Título é obrigatório"),
   description: z.string().nullable().optional(),
@@ -70,7 +71,7 @@ export const formSettingsSchema = z.object({
   notifyOnSubmission: z.boolean().optional(),
   notifyEmails: z.array(z.string().email()).optional(),
   identificationMode: z.enum(["anonymous", "identified"]).optional(),
-  identificationFields: z.array(z.enum(["name", "email", "cpf", "phone"])).optional(),
+  identificationFields: z.array(z.enum(["name", "email", "cpf", "phone", "birthDate", "gender"])).optional(),
 });
 
 /**

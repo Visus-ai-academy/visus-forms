@@ -4,6 +4,7 @@ import type { QuestionType } from "@/types/form";
 
 import { AddressField, type AddressValue } from "./address-field";
 import { ChoiceField } from "./choice-field";
+import { CpfField } from "./cpf-field";
 import { DropdownField } from "./dropdown-field";
 import { FileUploadField, type FileUploadValue } from "./file-upload-field";
 import { PhoneField } from "./phone-field";
@@ -177,6 +178,16 @@ export function QuestionField({
     case "STATEMENT":
       return <StatementBlock title={title} description={description} />;
 
+    case "CPF":
+      return (
+        <CpfField
+          value={String(value ?? "")}
+          onChange={(v) => onChange(v)}
+          placeholder={placeholder ?? undefined}
+          onKeyDown={handleKeyDown}
+        />
+      );
+
     case "ADDRESS":
       return (
         <AddressField
@@ -208,6 +219,7 @@ export function QuestionField({
 }
 
 export { AddressField } from "./address-field";
+export { CpfField } from "./cpf-field";
 export type { AddressValue } from "./address-field";
 export { ChoiceField } from "./choice-field";
 export { DropdownField } from "./dropdown-field";

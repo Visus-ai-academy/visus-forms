@@ -47,6 +47,12 @@ function buildFieldSchema(
     case "PHONE":
       return z.string().min(8, "Telefone inválido").max(20);
 
+    case "CPF":
+      return z.string().regex(
+        /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/,
+        "CPF inválido"
+      );
+
     case "URL":
       return z.string().min(1, "URL obrigatória").refine(
         (val) => {

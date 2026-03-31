@@ -244,6 +244,7 @@ enum QuestionType {
   URL
   STATEMENT
   ADDRESS
+  CPF
 }
 
 model Question {
@@ -365,10 +366,12 @@ model FormResponse {
   duration    Int?
 
   // Identificação do respondente
-  respondentName  String?
-  respondentEmail String?
-  respondentCpf   String?
-  respondentPhone String?
+  respondentName      String?
+  respondentEmail     String?
+  respondentCpf       String?
+  respondentPhone     String?
+  respondentBirthDate String?
+  respondentGender    String?
 
   form    Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
   user    User?    @relation(fields: [userId], references: [id])

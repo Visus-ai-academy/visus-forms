@@ -57,7 +57,7 @@ export function ResponsesTable({
     const anonymousIds: string[] = [];
     for (const r of responses) {
       const hasIdentity =
-        r.respondentName || r.respondentEmail || r.respondentCpf || r.respondentPhone || r.user?.name || r.user?.email;
+        r.respondentName || r.respondentEmail || r.respondentCpf || r.respondentPhone || r.respondentBirthDate || r.respondentGender || r.user?.name || r.user?.email;
       if (!hasIdentity) {
         anonymousIds.push(r.id);
       }
@@ -76,6 +76,8 @@ export function ResponsesTable({
       email: (r) => r.respondentEmail || r.user?.email || null,
       cpf: (r) => r.respondentCpf || null,
       phone: (r) => r.respondentPhone || null,
+      birthDate: (r) => r.respondentBirthDate || null,
+      gender: (r) => r.respondentGender || null,
     };
 
     const fixedCols: ColumnDef<ResponseData>[] = [

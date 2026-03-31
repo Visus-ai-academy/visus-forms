@@ -13,6 +13,8 @@ export interface RespondentData {
   email?: string;
   cpf?: string;
   phone?: string;
+  birthDate?: string;
+  gender?: string;
 }
 
 interface IdentificationScreenProps {
@@ -55,6 +57,12 @@ export function IdentificationScreen({ form, onContinue }: IdentificationScreenP
       }
       if (field === "cpf" && !CPF_REGEX.test(val)) {
         newErrors[field] = "CPF inválido";
+      }
+      if (field === "birthDate") {
+        const date = new Date(val);
+        if (isNaN(date.getTime())) {
+          newErrors[field] = "Data inválida";
+        }
       }
     }
 
@@ -121,9 +129,42 @@ export function IdentificationScreen({ form, onContinue }: IdentificationScreenP
                     maxLength={14}
                     className="rounded-xl bg-surface-container-lowest border-0 h-12 text-base"
                   />
+                ) : field === "birthDate" ? (
+                  <Input
+                    value={values.birthDate ?? ""}
+                    onChange={(e) => setValues((prev) => ({ ...prev, birthDate: e.target.value }))}
+                    type="date"
+                    className="rounded-xl bg-surface-container-lowest border-0 h-12 text-base"
+                  />
+                ) : field === "gender" ? (
+                  <div className="flex gap-2">
+                    {[
+                      { value: "masculino", label: "Masculino" },
+                      { value: "feminino", label: "Feminino" },
+                      { value: "outro", label: "Outro" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setValues((prev) => ({ ...prev, gender: opt.value }))}
+                        className={`flex-1 rounded-xl px-3 py-3 text-sm font-medium transition-all ${
+                          values.gender === opt.value
+                            ? "text-white"
+                            : "bg-surface-container-lowest text-on-surface/60 hover:bg-surface-container-low"
+                        }`}
+                        style={
+                          values.gender === opt.value
+                            ? { background: `linear-gradient(135deg, ${primaryColor}, ${form.theme?.primaryColor ?? "#34594F"})` }
+                            : undefined
+                        }
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 ) : (
                   <Input
-                    value={values[field] ?? ""}
+                    value={values[field as "name" | "email"] ?? ""}
                     onChange={(e) => setValues((prev) => ({ ...prev, [field]: e.target.value }))}
                     placeholder={field === "email" ? "seu@email.com" : field === "name" ? "Seu nome completo" : ""}
                     type={field === "email" ? "email" : "text"}

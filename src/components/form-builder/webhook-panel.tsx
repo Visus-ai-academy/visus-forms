@@ -315,16 +315,41 @@ export function WebhookPanel({ formId }: WebhookPanelProps) {
       const q = form.questions.find((q) => q.id === qId);
       if (q) data[slugify(q.title) || qId] = "(valor da resposta)";
     }
+
+    const identificationFields = (form.settings?.identificationFields ?? []) as string[];
+    const fieldLabels: Record<string, string> = {
+      name: "nome",
+      email: "email",
+      cpf: "cpf",
+      phone: "telefone",
+      birthDate: "data_nascimento",
+      gender: "sexo",
+    };
+    const fieldPlaceholders: Record<string, string> = {
+      name: "(nome do respondente)",
+      email: "(email do respondente)",
+      cpf: "(cpf do respondente)",
+      phone: "(telefone do respondente)",
+      birthDate: "(data de nascimento do respondente)",
+      gender: "(sexo do respondente)",
+    };
+
+    const isIdentified = form.settings?.identificationMode === "identified";
+    let respondent: Record<string, string> | undefined;
+    if (isIdentified && identificationFields.length > 0) {
+      respondent = {};
+      for (const field of identificationFields) {
+        respondent[fieldLabels[field] || field] = fieldPlaceholders[field] || `(${field})`;
+      }
+    }
+
     return {
       event: "form.submitted",
       formId: form.id,
       formTitle: form.title,
       responseId: "(id-da-resposta)",
       submittedAt: new Date().toISOString(),
-      respondent: {
-        nome: "(nome do respondente)",
-        email: "(email do respondente)",
-      },
+      ...(respondent && { respondent }),
       data,
     };
   }

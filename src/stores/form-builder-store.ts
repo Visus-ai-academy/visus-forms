@@ -4,7 +4,7 @@ import { create } from "zustand";
 
 import type { FormDefinition, Question, QuestionType } from "@/types/form";
 
-export type BuilderTab = "editor" | "logica" | "design" | "compartilhar" | "respostas";
+export type BuilderTab = "editor" | "logica" | "design" | "webhooks" | "compartilhar" | "respostas";
 
 interface FormBuilderState {
   form: FormDefinition | null;

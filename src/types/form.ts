@@ -128,7 +128,23 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   PHONE: "Telefone",
   URL: "URL",
   STATEMENT: "Informativo",
+  ADDRESS: "Endereço",
 };
+
+export interface FormWebhook {
+  id: string;
+  formId: string;
+  name: string;
+  url: string;
+  method: string;
+  headers: Record<string, string>;
+  enabled: boolean;
+  questionIds: string[];
+  secret: string | null;
+  retryCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const QUESTION_TYPE_ICONS: Record<QuestionType, string> = {
   SHORT_TEXT: "Type",
@@ -145,4 +161,5 @@ export const QUESTION_TYPE_ICONS: Record<QuestionType, string> = {
   PHONE: "Phone",
   URL: "Link",
   STATEMENT: "MessageSquare",
+  ADDRESS: "MapPin",
 };

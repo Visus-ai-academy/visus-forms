@@ -2,6 +2,7 @@
 
 import type { QuestionType } from "@/types/form";
 
+import { AddressField, type AddressValue } from "./address-field";
 import { ChoiceField } from "./choice-field";
 import { DropdownField } from "./dropdown-field";
 import { FileUploadField, type FileUploadValue } from "./file-upload-field";
@@ -176,6 +177,24 @@ export function QuestionField({
     case "STATEMENT":
       return <StatementBlock title={title} description={description} />;
 
+    case "ADDRESS":
+      return (
+        <AddressField
+          value={
+            (value as AddressValue) ?? {
+              cep: "",
+              logradouro: "",
+              numero: "",
+              complemento: "",
+              bairro: "",
+              cidade: "",
+              estado: "",
+            }
+          }
+          onChange={onChange}
+        />
+      );
+
     default:
       return (
         <TextField
@@ -188,6 +207,8 @@ export function QuestionField({
   }
 }
 
+export { AddressField } from "./address-field";
+export type { AddressValue } from "./address-field";
 export { ChoiceField } from "./choice-field";
 export { DropdownField } from "./dropdown-field";
 export { FieldWrapper } from "./field-wrapper";

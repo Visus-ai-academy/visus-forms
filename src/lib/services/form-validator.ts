@@ -92,6 +92,17 @@ function buildFieldSchema(
       return z.array(fileSchema);
     }
 
+    case "ADDRESS":
+      return z.object({
+        cep: z.string().regex(/^\d{5}-?\d{3}$/, "CEP inválido"),
+        logradouro: z.string().min(1, "Endereço obrigatório"),
+        numero: z.string().min(1, "Número obrigatório"),
+        complemento: z.string().optional().default(""),
+        bairro: z.string().min(1, "Bairro obrigatório"),
+        cidade: z.string().min(1, "Cidade obrigatória"),
+        estado: z.string().min(2, "Estado obrigatório").max(2, "Use a sigla do estado"),
+      });
+
     case "STATEMENT":
       return z.any().optional();
 

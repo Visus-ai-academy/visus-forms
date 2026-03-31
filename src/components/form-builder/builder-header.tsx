@@ -42,6 +42,7 @@ const tabs: { id: BuilderTab; label: string }[] = [
   { id: "editor", label: "Editor" },
   { id: "logica", label: "Lógica" },
   { id: "design", label: "Design" },
+  { id: "webhooks", label: "Webhooks" },
   { id: "compartilhar", label: "Compartilhar" },
   { id: "respostas", label: "Respostas" },
 ];

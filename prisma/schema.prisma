@@ -166,6 +166,7 @@ model Form {
   theme     FormTheme?
   questions Question[]
   responses FormResponse[]
+  webhooks  FormWebhook[]
 
   publishedAt DateTime?
   closedAt    DateTime?
@@ -242,6 +243,7 @@ enum QuestionType {
   PHONE
   URL
   STATEMENT
+  ADDRESS
 }
 
 model Question {
@@ -437,4 +439,29 @@ model FileUpload {
   createdAt DateTime @default(now())
 
   @@map("file_uploads")
+}
+
+// ============================================================
+// WEBHOOKS
+// ============================================================
+
+model FormWebhook {
+  id          String  @id @default(cuid())
+  formId      String
+  name        String
+  url         String
+  method      String  @default("POST")
+  headers     Json    @default("{}")
+  enabled     Boolean @default(true)
+  questionIds String[]
+  secret      String?
+  retryCount  Int     @default(0)
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([formId])
+  @@map("form_webhooks")
 }

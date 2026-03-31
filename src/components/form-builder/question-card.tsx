@@ -13,6 +13,7 @@ import {
   Hash,
   Link,
   Mail,
+  MapPin,
   MessageSquare,
   Phone,
   Star,
@@ -59,6 +60,7 @@ const iconMap: Record<QuestionType, React.ComponentType<{ className?: string }>>
   PHONE: Phone,
   URL: Link,
   STATEMENT: MessageSquare,
+  ADDRESS: MapPin,
 };
 
 const typesWithOptions: QuestionType[] = [

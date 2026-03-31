@@ -9,6 +9,7 @@ import {
   Hash,
   Link,
   Mail,
+  MapPin,
   MessageSquare,
   Phone,
   Plus,
@@ -47,6 +48,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   PHONE: Phone,
   URL: Link,
   STATEMENT: MessageSquare,
+  ADDRESS: MapPin,
 };
 
 const categories = [
@@ -60,7 +62,7 @@ const categories = [
   },
   {
     name: "Dados",
-    types: ["NUMBER", "DATE", "EMAIL", "PHONE", "URL"] as QuestionType[],
+    types: ["NUMBER", "DATE", "EMAIL", "PHONE", "URL", "ADDRESS"] as QuestionType[],
   },
   {
     name: "Mídia",

@@ -10,6 +10,7 @@ import { BuilderPreview } from "./builder-preview";
 import { LogicPanel } from "./logic-panel";
 import { SharePanel } from "./share-panel";
 import { ThemeEditor } from "./theme-editor";
+import { WebhookPanel } from "./webhook-panel";
 
 interface BuilderContentProps {
   formId: string;
@@ -47,6 +48,8 @@ export function BuilderContent({ formId }: BuilderContentProps) {
         return <LogicPanel formId={formId} />;
       case "design":
         return <ThemeEditor formId={formId} />;
+      case "webhooks":
+        return <WebhookPanel formId={formId} />;
       case "compartilhar":
         return <SharePanel formId={formId} />;
       case "respostas":

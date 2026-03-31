@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { buildDynamicSchema } from "@/lib/services/form-validator";
+import { dispatchWebhooks } from "@/lib/services/webhook-dispatcher";
 
 /**
  * Schema Zod para validar o body inteiro da submissão.
@@ -216,6 +217,20 @@ export async function POST(
       });
     }
 
+    // Disparar webhooks (fire-and-forget)
+    dispatchWebhooks({
+      formId: form.id,
+      formTitle: form.title,
+      responseId: response.id,
+      answers: validated.data,
+      questions: form.questions.map((q) => ({
+        id: q.id,
+        title: q.title,
+        type: q.type,
+      })),
+      respondent: respondent ?? undefined,
+    }).catch(() => {});
+
     return NextResponse.json({ data: { responseId: response.id } }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Erro ao processar submissao" }, { status: 500 });
@@ -236,6 +251,7 @@ function mapValueToAnswer(
       return { dateValue: value ? new Date(String(value)) : null };
     case "MULTIPLE_CHOICE":
     case "FILE_UPLOAD":
+    case "ADDRESS":
       return { jsonValue: value as Prisma.InputJsonValue };
     default:
       return { textValue: String(value ?? "") };

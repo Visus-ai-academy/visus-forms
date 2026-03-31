@@ -27,6 +27,7 @@ export const createQuestionSchema = z.object({
     "PHONE",
     "URL",
     "STATEMENT",
+    "ADDRESS",
   ]),
   title: z.string().min(1, "Título é obrigatório"),
   description: z.string().nullable().optional(),

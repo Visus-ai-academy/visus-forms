@@ -83,6 +83,8 @@ export const StatementConfig = z.object({
   buttonText: z.string().default("Continuar"),
 });
 
+export const AddressConfig = z.object({});
+
 export const QuestionConfigSchema: Record<string, z.ZodSchema> = {
   SHORT_TEXT: ShortTextConfig,
   LONG_TEXT: LongTextConfig,
@@ -98,4 +100,5 @@ export const QuestionConfigSchema: Record<string, z.ZodSchema> = {
   PHONE: PhoneConfig,
   URL: UrlConfig,
   STATEMENT: StatementConfig,
+  ADDRESS: AddressConfig,
 };

@@ -72,7 +72,8 @@ export function FormEditDeleteActions({
       const res = await fetch(deleteEndpoint, { method: "DELETE" });
 
       if (!res.ok) {
-        toast.error(`Erro ao excluir ${entityLabel}`);
+        const result = await res.json();
+        toast.error(result.error || `Erro ao excluir ${entityLabel}`);
         return;
       }
 

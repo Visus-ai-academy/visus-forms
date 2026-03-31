@@ -119,10 +119,18 @@ export async function DELETE(
         },
       ],
     },
+    include: { _count: { select: { responses: true } } },
   });
 
   if (!form) {
     return NextResponse.json({ error: "Formulário não encontrado" }, { status: 404 });
+  }
+
+  if (form._count.responses > 0) {
+    return NextResponse.json(
+      { error: "Não é possível excluir um formulário com respostas" },
+      { status: 409 }
+    );
   }
 
   await prisma.form.delete({ where: { id: formId } });

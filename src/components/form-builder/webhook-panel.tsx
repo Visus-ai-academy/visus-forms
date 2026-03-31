@@ -299,12 +299,21 @@ export function WebhookPanel({ formId }: WebhookPanelProps) {
     }));
   }
 
+  function slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_|_$/g, "");
+  }
+
   function buildSamplePayload(webhook: FormWebhook) {
     if (!form) return {};
     const data: Record<string, string> = {};
     for (const qId of webhook.questionIds) {
       const q = form.questions.find((q) => q.id === qId);
-      if (q) data[q.title] = "(valor da resposta)";
+      if (q) data[slugify(q.title) || qId] = "(valor da resposta)";
     }
     return {
       event: "form.submitted",

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createFormSchema = z.object({
-  workflowId: z.string().cuid(),
+  workflowId: z.string().cuid().optional().nullable(),
   title: z.string().min(1, "Título é obrigatório").max(255),
   description: z.string().optional(),
 });

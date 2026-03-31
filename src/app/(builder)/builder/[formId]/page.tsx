@@ -21,11 +21,16 @@ export default async function FormBuilderPage({
   const form = await prisma.form.findFirst({
     where: {
       id: formId,
-      workflow: {
-        workspace: {
-          members: { some: { userId: session.user.id } },
+      OR: [
+        { creatorId: session.user.id },
+        {
+          workflow: {
+            workspace: {
+              members: { some: { userId: session.user.id } },
+            },
+          },
         },
-      },
+      ],
     },
     include: {
       settings: true,
@@ -52,14 +57,14 @@ export default async function FormBuilderPage({
     ...raw,
     submissionCount: raw._count?.responses ?? 0,
   } as FormDefinition & {
-    workflow: { id: string; name: string; workspaceId: string };
+    workflow: { id: string; name: string; workspaceId: string } | null;
   };
 
   return (
     <BuilderProvider form={formData}>
       <BuilderHeader
-        workspaceId={formData.workflow.workspaceId}
-        workflowId={formData.workflow.id}
+        workspaceId={formData.workflow?.workspaceId ?? null}
+        workflowId={formData.workflow?.id ?? null}
       />
       <div className="flex-1 min-h-0">
         <BuilderContent formId={formId} />

@@ -31,9 +31,14 @@ export async function GET(
       question: {
         formId,
         form: {
-          workflow: {
-            workspace: { members: { some: { userId: session.user.id } } },
-          },
+          OR: [
+            { creatorId: session.user.id },
+            {
+              workflow: {
+                workspace: { members: { some: { userId: session.user.id } } },
+              },
+            },
+          ],
         },
       },
     },
@@ -55,11 +60,16 @@ export async function PUT(
   const form = await prisma.form.findFirst({
     where: {
       id: formId,
-      workflow: {
-        workspace: {
-          members: { some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN", "MEMBER"] } } },
+      OR: [
+        { creatorId: session.user.id },
+        {
+          workflow: {
+            workspace: {
+              members: { some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN", "MEMBER"] } } },
+            },
+          },
         },
-      },
+      ],
     },
   });
 

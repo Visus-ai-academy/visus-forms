@@ -17,16 +17,21 @@ async function verifyRuleOwnership(
       sourceQuestion: {
         formId,
         form: {
-          workflow: {
-            workspace: {
-              members: {
-                some: {
-                  userId,
-                  role: { in: ["OWNER", "ADMIN", "MEMBER"] },
+          OR: [
+            { creatorId: userId },
+            {
+              workflow: {
+                workspace: {
+                  members: {
+                    some: {
+                      userId,
+                      role: { in: ["OWNER", "ADMIN", "MEMBER"] },
+                    },
+                  },
                 },
               },
             },
-          },
+          ],
         },
       },
     },

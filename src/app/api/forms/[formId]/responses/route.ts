@@ -19,9 +19,14 @@ export async function GET(
   const form = await prisma.form.findFirst({
     where: {
       id: formId,
-      workflow: {
-        workspace: { members: { some: { userId: session.user.id } } },
-      },
+      OR: [
+        { creatorId: session.user.id },
+        {
+          workflow: {
+            workspace: { members: { some: { userId: session.user.id } } },
+          },
+        },
+      ],
     },
     select: { id: true },
   });

@@ -179,6 +179,7 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
               <ResponsesTable
                 responses={data.data}
                 questions={form?.questions || []}
+                identificationFields={form?.settings?.identificationFields || []}
                 pagination={data.pagination}
                 onPageChange={setPage}
               />
@@ -194,6 +195,7 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
               <ResponsesIndividual
                 responses={data.data}
                 questions={form?.questions || []}
+                identificationFields={form?.settings?.identificationFields || []}
               />
             )}
           </>

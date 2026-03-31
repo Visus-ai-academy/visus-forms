@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { CreateFormModal } from "@/components/shared/create-form-modal";
+import { FormEditDeleteActions } from "@/components/shared/form-edit-delete-actions";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -55,6 +56,7 @@ export default async function WorkflowDetailPage({
         select: {
           id: true,
           title: true,
+          description: true,
           slug: true,
           status: true,
           createdAt: true,
@@ -94,7 +96,7 @@ export default async function WorkflowDetailPage({
             trigger={
               <span className="btn-primary-gradient px-5 py-2 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">
                 <Plus className="h-4 w-4" />
-                Novo Formulario
+                Novo Formulário
               </span>
             }
           />
@@ -111,7 +113,7 @@ export default async function WorkflowDetailPage({
               trigger={
                 <span className="btn-primary-gradient px-6 py-2.5 text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">
                   <Plus className="h-4 w-4" />
-                  Criar primeiro formulario
+                  Criar primeiro formulário
                 </span>
               }
             />
@@ -119,29 +121,40 @@ export default async function WorkflowDetailPage({
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {workflow.forms.map((form) => (
-              <Link key={form.id} href={`/builder/${form.id}`}>
-                <div className="group rounded-2xl bg-surface-container-lowest p-5 transition-all duration-200 hover:shadow-ambient">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-bold font-heading text-on-surface group-hover:text-primary transition-colors">
-                      {form.title}
-                    </h3>
+              <div key={form.id} className="group relative rounded-2xl bg-surface-container-lowest p-5 transition-all duration-200 hover:shadow-ambient">
+                <Link href={`/builder/${form.id}`} className="absolute inset-0 rounded-2xl" aria-label={`Abrir ${form.title}`} />
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="font-bold font-heading text-on-surface group-hover:text-primary transition-colors">
+                    {form.title}
+                  </h3>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="relative z-10">
+                      <FormEditDeleteActions
+                        entityName={form.title}
+                        entityLabel="Formulário"
+                        currentTitle={form.title}
+                        currentDescription={form.description}
+                        editEndpoint={`/api/forms/${form.id}`}
+                        deleteEndpoint={`/api/forms/${form.id}`}
+                      />
+                    </div>
                     <Badge className={`border-0 text-[10px] font-semibold uppercase tracking-wider ${statusColors[form.status]}`}>
                       {statusLabels[form.status]}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-4">/{form.slug}</p>
-                  <div className="flex gap-6">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Perguntas</p>
-                      <p className="text-lg font-bold font-heading text-on-surface">{form._count.questions}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Respostas</p>
-                      <p className="text-lg font-bold font-heading text-on-surface">{form._count.responses}</p>
-                    </div>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">/{form.slug}</p>
+                <div className="flex gap-6">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Perguntas</p>
+                    <p className="text-lg font-bold font-heading text-on-surface">{form._count.questions}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Respostas</p>
+                    <p className="text-lg font-bold font-heading text-on-surface">{form._count.responses}</p>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

@@ -98,7 +98,7 @@ export interface FormTheme {
 
 export interface FormDefinition {
   id: string;
-  workflowId: string;
+  workflowId: string | null;
   creatorId: string;
   title: string;
   description: string | null;

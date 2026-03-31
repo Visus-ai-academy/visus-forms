@@ -8,7 +8,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpDown, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,9 +17,17 @@ import { QUESTION_TYPE_LABELS } from "@/types/form";
 import type { ResponseData } from "@/types/response";
 import { getAnswerDisplayValue } from "@/types/response";
 
+const IDENTIFICATION_FIELD_LABELS: Record<string, string> = {
+  name: "Nome",
+  email: "E-mail",
+  cpf: "CPF",
+  phone: "Telefone",
+};
+
 interface ResponsesTableProps {
   responses: ResponseData[];
   questions: Question[];
+  identificationFields: string[];
   pagination: {
     page: number;
     limit: number;
@@ -38,26 +46,65 @@ const statusLabels: Record<string, { label: string; color: string }> = {
 export function ResponsesTable({
   responses,
   questions,
+  identificationFields,
   pagination,
   onPageChange,
 }: ResponsesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  const anonymousMap = useMemo(() => {
+    const map = new Map<string, string>();
+    const anonymousIds: string[] = [];
+    for (const r of responses) {
+      const hasIdentity =
+        r.respondentName || r.respondentEmail || r.respondentCpf || r.respondentPhone || r.user?.name || r.user?.email;
+      if (!hasIdentity) {
+        anonymousIds.push(r.id);
+      }
+    }
+    // responses vêm desc (mais recente primeiro), invertemos para numerar do mais antigo
+    anonymousIds.reverse();
+    anonymousIds.forEach((id, i) => {
+      map.set(id, `Anônimo ${i + 1}`);
+    });
+    return map;
+  }, [responses]);
+
   const columns = useMemo<ColumnDef<ResponseData>[]>(() => {
+    const fieldGetters: Record<string, (r: ResponseData) => string | null> = {
+      name: (r) => r.respondentName || r.user?.name || null,
+      email: (r) => r.respondentEmail || r.user?.email || null,
+      cpf: (r) => r.respondentCpf || null,
+      phone: (r) => r.respondentPhone || null,
+    };
+
     const fixedCols: ColumnDef<ResponseData>[] = [
       {
         accessorKey: "user",
         header: "Respondente",
         cell: ({ row }) => {
-          const user = row.original.user;
+          const fields = identificationFields.length > 0
+            ? identificationFields
+            : ["name", "email"];
+
+          const values = fields.map((f) => ({
+            label: IDENTIFICATION_FIELD_LABELS[f] || f,
+            value: fieldGetters[f]?.(row.original) || null,
+          }));
+
+          const primary = values[0]?.value || anonymousMap.get(row.original.id) || "Anônimo";
+          const secondary = values.slice(1).filter((v) => v.value);
+
           return (
             <div className="min-w-[120px]">
               <p className="text-sm font-semibold text-on-surface truncate">
-                {row.original.respondentName || user?.name || "Anônimo"}
+                {primary}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {row.original.respondentEmail || user?.email || "-"}
-              </p>
+              {secondary.map((v) => (
+                <p key={v.label} className="text-xs text-muted-foreground truncate">
+                  {v.value}
+                </p>
+              ))}
             </div>
           );
         },
@@ -134,6 +181,23 @@ export function ResponsesTable({
               </a>
             );
           }
+          if (q.type === "RATING" && answer.numberValue != null) {
+            const max = (q.config as { maxRating?: number })?.maxRating || 5;
+            return (
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: max }, (_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-3.5 w-3.5 ${
+                      i < answer.numberValue!
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-muted-foreground/30"
+                    }`}
+                  />
+                ))}
+              </div>
+            );
+          }
           return (
             <span className="text-xs text-on-surface max-w-[200px] truncate block" title={value}>
               {value}
@@ -143,7 +207,7 @@ export function ResponsesTable({
       }));
 
     return [...fixedCols, ...questionCols];
-  }, [questions]);
+  }, [questions, identificationFields, anonymousMap]);
 
   const table = useReactTable({
     data: responses,

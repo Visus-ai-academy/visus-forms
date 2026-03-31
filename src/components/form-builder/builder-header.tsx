@@ -34,8 +34,8 @@ import {
 import { type BuilderTab, useFormBuilderStore } from "@/stores/form-builder-store";
 
 interface BuilderHeaderProps {
-  workspaceId: string;
-  workflowId: string;
+  workspaceId: string | null;
+  workflowId: string | null;
 }
 
 const tabs: { id: BuilderTab; label: string }[] = [
@@ -77,7 +77,7 @@ export function BuilderHeader({ workspaceId, workflowId }: BuilderHeaderProps) {
     <div className="glass-header flex h-14 items-center justify-between px-4 gap-4 z-10 shrink-0">
       {/* Esquerda */}
       <div className="flex items-center gap-3">
-        <Link href={`/dashboard/workspaces/${workspaceId}/workflows/${workflowId}`}>
+        <Link href={workspaceId && workflowId ? `/dashboard/workspaces/${workspaceId}/workflows/${workflowId}` : "/dashboard/forms"}>
           <Button
             variant="ghost"
             size="icon"

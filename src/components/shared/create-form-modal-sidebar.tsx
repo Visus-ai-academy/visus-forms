@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogClose,
@@ -38,6 +39,7 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [independent, setIndependent] = useState(false);
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -69,6 +71,7 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
       setSelectedWorkspaceId("");
       setSelectedWorkflowId("");
       setWorkflows([]);
+      setIndependent(false);
     }
   }, [open, loadWorkspaces]);
 
@@ -97,8 +100,10 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
     loadWorkflows();
   }, [selectedWorkspaceId]);
 
+  const canSubmit = title.trim() && (independent || selectedWorkflowId);
+
   async function handleCreate() {
-    if (!title.trim() || !selectedWorkflowId) return;
+    if (!canSubmit) return;
     setIsLoading(true);
 
     try {
@@ -108,7 +113,7 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
         body: JSON.stringify({
           title,
           description: description || undefined,
-          workflowId: selectedWorkflowId,
+          ...(independent ? {} : { workflowId: selectedWorkflowId }),
         }),
       });
 
@@ -129,16 +134,35 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
     }
   }
 
+  function handleIndependentChange(checked: boolean) {
+    setIndependent(checked);
+    if (checked) {
+      setSelectedWorkspaceId("");
+      setSelectedWorkflowId("");
+      setWorkflows([]);
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Novo Formulário</DialogTitle>
           <DialogDescription>
-            Selecione o workspace e workflow, depois preencha os dados do formulário.
+            Preencha os dados do formulário. Você pode vinculá-lo a um workflow ou criá-lo de forma independente.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <Switch
+              checked={independent}
+              onCheckedChange={(checked) => handleIndependentChange(checked)}
+            />
+            <span className="text-sm font-medium text-on-surface">
+              Formulário independente
+            </span>
+          </label>
+
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Workspace
@@ -146,8 +170,8 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
             <select
               value={selectedWorkspaceId}
               onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-              disabled={loadingWorkspaces}
-              className="w-full rounded-lg bg-surface-container-low border-0 h-11 px-3 text-sm text-on-surface"
+              disabled={independent || loadingWorkspaces}
+              className="w-full rounded-lg bg-surface-container-low border-0 h-11 px-3 text-sm text-on-surface disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Selecionar workspace"
             >
               <option value="">
@@ -168,8 +192,8 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
             <select
               value={selectedWorkflowId}
               onChange={(e) => setSelectedWorkflowId(e.target.value)}
-              disabled={!selectedWorkspaceId || loadingWorkflows}
-              className="w-full rounded-lg bg-surface-container-low border-0 h-11 px-3 text-sm text-on-surface disabled:opacity-50"
+              disabled={independent || !selectedWorkspaceId || loadingWorkflows}
+              className="w-full rounded-lg bg-surface-container-low border-0 h-11 px-3 text-sm text-on-surface disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Selecionar workflow"
             >
               <option value="">
@@ -220,7 +244,7 @@ export function CreateFormModalSidebar({ open, onOpenChange }: CreateFormModalSi
             </DialogClose>
             <Button
               onClick={handleCreate}
-              disabled={isLoading || !title.trim() || !selectedWorkflowId}
+              disabled={isLoading || !canSubmit}
               className="btn-primary-gradient px-5 py-2 text-sm font-semibold"
             >
               {isLoading ? (

@@ -18,9 +18,14 @@ export async function GET(
       sourceQuestionId: questionId,
       sourceQuestion: {
         form: {
-          workflow: {
-            workspace: { members: { some: { userId: session.user.id } } },
-          },
+          OR: [
+            { creatorId: session.user.id },
+            {
+              workflow: {
+                workspace: { members: { some: { userId: session.user.id } } },
+              },
+            },
+          ],
         },
       },
     },
@@ -44,11 +49,16 @@ export async function POST(
       id: questionId,
       formId,
       form: {
-        workflow: {
-          workspace: {
-            members: { some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN", "MEMBER"] } } },
+        OR: [
+          { creatorId: session.user.id },
+          {
+            workflow: {
+              workspace: {
+                members: { some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN", "MEMBER"] } } },
+              },
+            },
           },
-        },
+        ],
       },
     },
   });

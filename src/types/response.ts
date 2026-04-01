@@ -95,6 +95,24 @@ export function getAnswerDisplayValue(
     return answer.fileUpload.originalName;
   }
   if (answer.jsonValue !== null) {
+    // ADDRESS: formatar como texto legível
+    if (answer.question.type === "ADDRESS" && typeof answer.jsonValue === "object" && !Array.isArray(answer.jsonValue)) {
+      const addr = answer.jsonValue as Record<string, string>;
+      const lines: string[] = [];
+      if (addr.logradouro) {
+        let line = addr.logradouro;
+        if (addr.numero) line += `, ${addr.numero}`;
+        if (addr.complemento) line += ` - ${addr.complemento}`;
+        lines.push(line);
+      }
+      if (addr.bairro) lines.push(addr.bairro);
+      const cityState: string[] = [];
+      if (addr.cidade) cityState.push(addr.cidade);
+      if (addr.estado) cityState.push(addr.estado);
+      if (cityState.length > 0) lines.push(cityState.join("/"));
+      if (addr.cep) lines.push(`CEP: ${addr.cep}`);
+      return lines.length > 0 ? lines.join(", ") : "-";
+    }
     // FILE_UPLOAD sem fileUpload record — extrair do jsonValue
     if (answer.question.type === "FILE_UPLOAD" && Array.isArray(answer.jsonValue)) {
       if (answer.jsonValue.length === 0) return "-";

@@ -201,7 +201,7 @@ export function ResponsesTable({
             );
           }
           return (
-            <span className="text-xs text-on-surface max-w-[200px] truncate block" title={value}>
+            <span className="text-xs text-on-surface max-w-[300px] block" title={value}>
               {value}
             </span>
           );

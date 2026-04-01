@@ -17,6 +17,25 @@ function sanitizeFilename(title: string): string {
   return sanitized || "formulario";
 }
 
+function formatAddress(jsonValue: unknown): string {
+  if (typeof jsonValue !== "object" || jsonValue === null || Array.isArray(jsonValue)) return "";
+  const addr = jsonValue as Record<string, string>;
+  const lines: string[] = [];
+  if (addr.logradouro) {
+    let line = addr.logradouro;
+    if (addr.numero) line += `, ${addr.numero}`;
+    if (addr.complemento) line += ` - ${addr.complemento}`;
+    lines.push(line);
+  }
+  if (addr.bairro) lines.push(addr.bairro);
+  const cityState: string[] = [];
+  if (addr.cidade) cityState.push(addr.cidade);
+  if (addr.estado) cityState.push(addr.estado);
+  if (cityState.length > 0) lines.push(cityState.join("/"));
+  if (addr.cep) lines.push(`CEP: ${addr.cep}`);
+  return lines.join(", ");
+}
+
 function getAnswerDisplay(
   answer: {
     textValue: string | null;
@@ -26,6 +45,7 @@ function getAnswerDisplay(
     jsonValue: unknown;
     fileUpload?: { originalName: string; storageUrl: string } | null;
   },
+  questionType?: string,
   optionsMap?: Map<string, string>
 ): string {
   if (answer.fileUpload) {
@@ -39,6 +59,7 @@ function getAnswerDisplay(
   if (answer.booleanValue !== null) return answer.booleanValue ? "Sim" : "Nao";
   if (answer.dateValue !== null) return new Date(answer.dateValue).toLocaleDateString("pt-BR");
   if (answer.jsonValue !== null) {
+    if (questionType === "ADDRESS") return formatAddress(answer.jsonValue);
     if (Array.isArray(answer.jsonValue)) {
       if (optionsMap) {
         return (answer.jsonValue as string[]).map((v) => optionsMap.get(v) || v).join(", ");
@@ -106,6 +127,8 @@ export async function GET(
     "E-mail",
     "CPF",
     "Telefone",
+    "Data de nascimento",
+    "Sexo",
     "Status",
     "Data de envio",
     "Duração (s)",
@@ -129,6 +152,8 @@ export async function GET(
       (r.respondentEmail as string) || response.user?.email || "-",
       (r.respondentCpf as string) || "-",
       (r.respondentPhone as string) || "-",
+      (r.respondentBirthDate as string) || "-",
+      (r.respondentGender as string) || "-",
       response.status,
       response.completedAt
         ? new Date(response.completedAt).toLocaleString("pt-BR")
@@ -136,7 +161,7 @@ export async function GET(
       response.duration ? String(response.duration) : "-",
       ...form.questions.map((q) => {
         const answer = answerMap.get(q.id);
-        return answer ? getAnswerDisplay(answer, questionOptionsMaps.get(q.id)) : "";
+        return answer ? getAnswerDisplay(answer, q.type, questionOptionsMaps.get(q.id)) : "";
       }),
     ];
   });

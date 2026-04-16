@@ -5,11 +5,12 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import type { Question } from "@/types/form";
@@ -35,6 +36,7 @@ interface ResponsesTableProps {
     totalPages: number;
   };
   onPageChange: (page: number) => void;
+  onSelectionChange?: (selectedIds: string[]) => void;
 }
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -49,8 +51,10 @@ export function ResponsesTable({
   identificationFields,
   pagination,
   onPageChange,
+  onSelectionChange,
 }: ResponsesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const anonymousMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -81,6 +85,29 @@ export function ResponsesTable({
     };
 
     const fixedCols: ColumnDef<ResponseData>[] = [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <input
+            type="checkbox"
+            checked={table.getIsAllRowsSelected()}
+            ref={(el) => {
+              if (el) el.indeterminate = table.getIsSomeRowsSelected();
+            }}
+            onChange={table.getToggleAllRowsSelectedHandler()}
+            className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+          />
+        ),
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+            className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+          />
+        ),
+        enableSorting: false,
+      },
       {
         accessorKey: "user",
         header: "Respondente",
@@ -211,13 +238,20 @@ export function ResponsesTable({
     return [...fixedCols, ...questionCols];
   }, [questions, identificationFields, anonymousMap]);
 
+  useEffect(() => {
+    const ids = Object.keys(rowSelection).filter((id) => rowSelection[id]);
+    onSelectionChange?.(ids);
+  }, [rowSelection, onSelectionChange]);
+
   const table = useReactTable({
     data: responses,
     columns,
-    state: { sorting },
+    state: { sorting, rowSelection },
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getRowId: (row) => row.id,
   });
 
   return (

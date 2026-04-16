@@ -81,6 +81,8 @@ export async function GET(
   const { formId } = await params;
   const url = new URL(request.url);
   const format = url.searchParams.get("format") || "csv";
+  const idsParam = url.searchParams.get("ids");
+  const filterIds = idsParam ? idsParam.split(",").filter(Boolean) : null;
 
   const form = await prisma.form.findFirst({
     where: {
@@ -112,7 +114,11 @@ export async function GET(
   }
 
   const responses = await prisma.formResponse.findMany({
-    where: { formId, status: "COMPLETED" },
+    where: {
+      formId,
+      status: "COMPLETED",
+      ...(filterIds && { id: { in: filterIds } }),
+    },
     include: {
       answers: { include: { fileUpload: true } },
       user: { select: { name: true, email: true } },

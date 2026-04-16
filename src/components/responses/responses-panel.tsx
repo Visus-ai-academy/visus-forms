@@ -2,12 +2,14 @@
 
 import {
   BarChart3,
+  CheckSquare,
   Download,
   FileSpreadsheet,
   FileText,
   Loader2,
   Table2,
   User,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -32,6 +34,8 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [isExporting, setIsExporting] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectionResetKey, setSelectionResetKey] = useState(0);
 
   const fetchResponses = useCallback(async () => {
     setIsLoading(true);
@@ -54,7 +58,11 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
   async function handleExport(format: "csv" | "xlsx") {
     setIsExporting(format);
     try {
-      const res = await fetch(`/api/forms/${formId}/responses/export?format=${format}`);
+      const params = new URLSearchParams({ format });
+      if (selectedIds.length > 0) {
+        params.set("ids", selectedIds.join(","));
+      }
+      const res = await fetch(`/api/forms/${formId}/responses/export?${params}`);
       if (!res.ok) throw new Error();
 
       const blob = await res.blob();
@@ -127,6 +135,20 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
 
           {/* Exportacao */}
           <div className="flex items-center gap-2">
+            {selectedIds.length > 0 && (
+              <div className="flex items-center gap-2 mr-2 px-3 py-1.5 rounded-lg bg-primary/10">
+                <CheckSquare className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary">
+                  {selectedIds.length} selecionada{selectedIds.length > 1 ? "s" : ""}
+                </span>
+                <button
+                  onClick={() => { setSelectedIds([]); setSelectionResetKey((k) => k + 1); }}
+                  className="text-primary/60 hover:text-primary transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
             <button
               onClick={() => handleExport("csv")}
               disabled={isExporting !== null || !data?.data.length}
@@ -177,11 +199,13 @@ export function ResponsesPanel({ formId }: ResponsesPanelProps) {
           <>
             {activeTab === "tabela" && (
               <ResponsesTable
+                key={selectionResetKey}
                 responses={data.data}
                 questions={form?.questions || []}
                 identificationFields={form?.settings?.identificationFields || []}
                 pagination={data.pagination}
                 onPageChange={setPage}
+                onSelectionChange={setSelectedIds}
               />
             )}
             {activeTab === "analitico" && (

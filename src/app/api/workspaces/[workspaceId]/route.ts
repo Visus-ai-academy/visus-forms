@@ -45,7 +45,12 @@ export async function PATCH(
   const { workspaceId } = await params;
 
   const workspace = await prisma.workspace.findFirst({
-    where: { id: workspaceId, ownerId: session.user.id },
+    where: {
+      id: workspaceId,
+      members: {
+        some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN"] } },
+      },
+    },
   });
 
   if (!workspace) {
@@ -77,7 +82,12 @@ export async function DELETE(
   const { workspaceId } = await params;
 
   const workspace = await prisma.workspace.findFirst({
-    where: { id: workspaceId, ownerId: session.user.id },
+    where: {
+      id: workspaceId,
+      members: {
+        some: { userId: session.user.id, role: { in: ["OWNER", "ADMIN"] } },
+      },
+    },
   });
 
   if (!workspace) {

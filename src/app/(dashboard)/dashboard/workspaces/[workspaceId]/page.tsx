@@ -1,10 +1,11 @@
-import { FileText, Plus, Users } from "lucide-react";
+import { FileText, Plus, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { EditDeleteActions } from "@/components/shared/edit-delete-actions";
 import { CreateWorkflowModal } from "@/components/shared/create-workflow-modal";
+import { InviteMemberModal } from "@/components/shared/invite-member-modal";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -51,6 +52,9 @@ export default async function WorkspaceDetailPage({
   });
 
   if (!workspace) notFound();
+
+  const currentMember = workspace.members.find((m) => m.user.id === session.user.id);
+  const canInvite = currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
 
   return (
     <>
@@ -142,10 +146,23 @@ export default async function WorkspaceDetailPage({
 
           {/* Membros */}
           <div className="space-y-5">
-            <h2 className="text-lg font-bold font-heading text-on-surface">
-              <Users className="mr-2 h-4 w-4 inline" />
-              Membros ({workspace.members.length})
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold font-heading text-on-surface">
+                <Users className="mr-2 h-4 w-4 inline" />
+                Membros ({workspace.members.length})
+              </h2>
+              {canInvite && (
+                <InviteMemberModal
+                  workspaceId={workspaceId}
+                  trigger={
+                    <span className="btn-primary-gradient px-3 py-1.5 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer rounded-xl">
+                      <UserPlus className="h-3.5 w-3.5" />
+                      Convidar
+                    </span>
+                  }
+                />
+              )}
+            </div>
             <div className="rounded-2xl bg-surface-container-lowest divide-y divide-border">
               {workspace.members.map((member) => (
                 <div key={member.id} className="flex items-center justify-between px-5 py-4">

@@ -14,7 +14,14 @@ export async function GET(request: Request) {
 
   const forms = await prisma.form.findMany({
     where: workflowId
-      ? { workflowId, creatorId: session.user.id }
+      ? {
+          workflowId,
+          workflow: {
+            workspace: {
+              members: { some: { userId: session.user.id } },
+            },
+          },
+        }
       : {
           OR: [
             { creatorId: session.user.id },

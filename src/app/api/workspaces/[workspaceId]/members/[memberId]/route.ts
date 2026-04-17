@@ -67,7 +67,7 @@ export async function DELETE(
   const { workspaceId, memberId } = await params;
 
   const currentMember = await prisma.workspaceMember.findFirst({
-    where: { workspaceId, userId: session.user.id, role: { in: ["OWNER", "ADMIN"] } },
+    where: { workspaceId, userId: session.user.id, role: "OWNER" },
   });
 
   if (!currentMember) {
@@ -84,10 +84,6 @@ export async function DELETE(
 
   if (target.role === "OWNER") {
     return NextResponse.json({ error: "Nao e possivel remover o owner" }, { status: 403 });
-  }
-
-  if (target.role === "ADMIN" && currentMember.role === "ADMIN") {
-    return NextResponse.json({ error: "Admin nao pode remover outro admin" }, { status: 403 });
   }
 
   await prisma.workspaceMember.delete({ where: { id: memberId } });

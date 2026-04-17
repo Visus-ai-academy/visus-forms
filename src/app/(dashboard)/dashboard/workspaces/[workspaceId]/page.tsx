@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { EditDeleteActions } from "@/components/shared/edit-delete-actions";
+import { RemoveMemberButton } from "@/components/shared/remove-member-button";
 import { CreateWorkflowModal } from "@/components/shared/create-workflow-modal";
 import { InviteMemberModal } from "@/components/shared/invite-member-modal";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +56,7 @@ export default async function WorkspaceDetailPage({
 
   const currentMember = workspace.members.find((m) => m.user.id === session.user.id);
   const canInvite = currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
+  const isOwner = currentMember?.role === "OWNER";
 
   return (
     <>
@@ -172,9 +174,18 @@ export default async function WorkspaceDetailPage({
                     </p>
                     <p className="text-xs text-muted-foreground">{member.user.email}</p>
                   </div>
-                  <Badge className="bg-surface-container-high text-muted-foreground border-0 text-[10px] font-semibold">
-                    {member.role}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-surface-container-high text-muted-foreground border-0 text-[10px] font-semibold">
+                      {member.role}
+                    </Badge>
+                    {isOwner && member.role !== "OWNER" && (
+                      <RemoveMemberButton
+                        workspaceId={workspaceId}
+                        memberId={member.id}
+                        memberName={member.user.name || member.user.email}
+                      />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

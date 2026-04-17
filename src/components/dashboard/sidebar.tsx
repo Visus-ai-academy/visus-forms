@@ -81,16 +81,18 @@ export function Sidebar() {
 
       {/* Usuário */}
       <div className="flex items-center gap-3 px-5 py-4">
-        <Avatar className="h-8 w-8">
-          <AvatarFallback className="bg-surface-container-high text-xs font-medium">
-            {initials || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-on-surface truncate">
-            {session?.user?.name || "Usuário"}
-          </p>
-        </div>
+        <Link href="/dashboard/profile" className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-surface-container-high text-xs font-medium">
+              {initials || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-on-surface truncate">
+              {session?.user?.name || "Usuário"}
+            </p>
+          </div>
+        </Link>
         <Button
           variant="ghost"
           size="icon"

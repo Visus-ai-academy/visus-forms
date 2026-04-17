@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { getClientIp, RateLimiter } from "@/lib/rate-limit";
+import { passwordSchema } from "@/lib/schemas/password";
 
 // Rate limiter: 5 registros por hora por IP
 const registerRateLimiter = new RateLimiter({
@@ -14,11 +15,7 @@ const registerRateLimiter = new RateLimiter({
 const registerSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   email: z.string().email("E-mail inválido"),
-  password: z
-    .string()
-    .min(8, "Senha deve ter pelo menos 8 caracteres")
-    .regex(/[A-Z]/, "Senha deve ter pelo menos uma letra maiúscula")
-    .regex(/[0-9]/, "Senha deve ter pelo menos um número"),
+  password: passwordSchema,
 });
 
 export async function POST(request: Request) {
